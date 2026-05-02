@@ -1,16 +1,58 @@
-# React + Vite
+# Portfolio — Projet personnel
 
-This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
+Site portfolio développé avec React et Vite.
 
-Currently, two official plugins are available:
+Contenu
+- Présentation personnelle et projets
+- Pages : Accueil, À propos, Projets, Services, Contact
 
-- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react) uses [Oxc](https://oxc.rs)
-- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react-swc) uses [SWC](https://swc.rs/)
+Prérequis
+- Node.js 18+ (ou version LTS moderne)
 
-## React Compiler
+Installation et exécution locale
+1. Installer les dépendances :
 
-The React Compiler is not enabled on this template because of its impact on dev & build performances. To add it, see [this documentation](https://react.dev/learn/react-compiler/installation).
+```bash
+npm install
+```
 
-## Expanding the ESLint configuration
+2. Lancer le serveur de développement :
 
-If you are developing a production application, we recommend using TypeScript with type-aware lint rules enabled. Check out the [TS template](https://github.com/vitejs/vite/tree/main/packages/create-vite/template-react-ts) for information on how to integrate TypeScript and [`typescript-eslint`](https://typescript-eslint.io) in your project.
+```bash
+npm run dev
+```
+
+3. Construire pour la production :
+
+```bash
+npm run build
+```
+
+4. Prévisualiser la build produite :
+
+```bash
+npm run preview
+```
+
+Scripts utiles
+- `dev` : démarre Vite en mode développement
+- `build` : génère la build de production
+- `preview` : sert la build locale pour vérification
+- `lint` : exécute ESLint
+
+Conseils de déploiement
+- Déployer la sortie de `npm run build` sur Netlify, Vercel, GitHub Pages ou tout hébergeur statique.
+
+Contribuer
+- Créer une branche nommée `feat/...` ou `fix/...`
+- Faire des commits clairs en français
+- Ouvrir une Pull Request pour revue
+
+Auteur
+- Idrissa M. Kane
+
+Licence
+- (À préciser) — si vous souhaitez, je peux ajouter une licence recommandée (ex : MIT).
+
+Contact
+- Voir la page `Contact` du site ou ajouter un e-mail dans `public/` si souhaité.
