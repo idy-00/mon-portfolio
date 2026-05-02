@@ -1,0 +1,29 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="800" height="400" viewBox="0 0 800 400">
+  <rect width="800" height="400" fill="#05080f"/>
+  <!-- Layout -->
+  <rect x="40" y="40" width="220" height="320" rx="15" fill="#111827" stroke="#1f2937"/>
+  <circle cx="150" cy="120" r="50" fill="#1f2937" stroke="#14b8a6" stroke-width="3"/>
+  <text x="150" y="200" fill="#ffffff" font-family="sans-serif" font-size="20" font-weight="bold" text-anchor="middle">Idrissa Kane</text>
+  <text x="150" y="225" fill="#14b8a6" font-family="sans-serif" font-size="14" text-anchor="middle">Développeur Full Stack</text>
+  <rect x="80" y="260" width="140" height="36" rx="18" fill="#6366f1"/>
+  <text x="150" y="283" fill="#ffffff" font-family="sans-serif" font-size="14" font-weight="bold" text-anchor="middle">Télécharger CV</text>
+
+  <rect x="280" y="40" width="480" height="150" rx="15" fill="#111827" stroke="#1f2937"/>
+  <text x="310" y="80" fill="#ffffff" font-family="sans-serif" font-size="24" font-weight="bold">À propos de moi</text>
+  <text x="310" y="120" fill="#9ca3af" font-family="sans-serif" font-size="14">Passionné par la création d'interfaces utilisateur modernes et</text>
+  <text x="310" y="145" fill="#9ca3af" font-family="sans-serif" font-size="14">le développement de backends robustes en PHP et Laravel.</text>
+
+  <rect x="280" y="210" width="230" height="150" rx="15" fill="#111827" stroke="#1f2937"/>
+  <text x="310" y="250" fill="#ffffff" font-family="sans-serif" font-size="18" font-weight="bold">Projet Récent</text>
+  <text x="310" y="280" fill="#14b8a6" font-family="sans-serif" font-size="14">Application SaaS B2B2C</text>
+  <text x="310" y="310" fill="#9ca3af" font-family="sans-serif" font-size="12">Gestion multi-tenant en temps réel.</text>
+
+  <rect x="530" y="210" width="230" height="150" rx="15" fill="#111827" stroke="#1f2937"/>
+  <text x="560" y="250" fill="#ffffff" font-family="sans-serif" font-size="18" font-weight="bold">Technologies</text>
+  <rect x="560" y="270" width="60" height="24" rx="4" fill="#1f2937"/>
+  <text x="590" y="286" fill="#14b8a6" font-family="sans-serif" font-size="12" text-anchor="middle">React</text>
+  <rect x="630" y="270" width="60" height="24" rx="4" fill="#1f2937"/>
+  <text x="660" y="286" fill="#14b8a6" font-family="sans-serif" font-size="12" text-anchor="middle">Laravel</text>
+  <rect x="560" y="305" width="80" height="24" rx="4" fill="#1f2937"/>
+  <text x="600" y="321" fill="#14b8a6" font-family="sans-serif" font-size="12" text-anchor="middle">Tailwind CSS</text>
+</svg>
