@@ -224,7 +224,7 @@ export default function HomePage() {
         transition={{ duration: 0.5 }}
       >
         {[
-          { value: 6, suffix: '+', label: 'Projets livrés', desc: 'Web, SaaS, Desktop' },
+          { value: 20, suffix: '+', label: 'Projets livrés', desc: 'Web, SaaS, Desktop' },
           { value: 2, suffix: ' ans', label: "D'expérience", desc: 'Full Stack' },
           { value: 100, suffix: '%', label: 'Orienté résultats', desc: 'Impact mesurable' },
         ].map(({ value, suffix, label, desc }, i) => (

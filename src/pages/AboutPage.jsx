@@ -17,7 +17,7 @@ function SkillBar({ name, pct, icon, delay = 0 }) {
     <div className="skill-bar-item" ref={ref}>
       <div className="skill-bar-header">
         <span className="skill-bar-name">
-          {icon && <span style={{ fontSize: '1rem' }}>{icon}</span>}
+          {icon && <SkillIcon type={icon} />}
           {name}
         </span>
         <span className="skill-bar-pct">{pct}%</span>
@@ -34,18 +34,90 @@ function SkillBar({ name, pct, icon, delay = 0 }) {
   )
 }
 
+function SkillIcon({ type }) {
+  const common = {
+    width: 14,
+    height: 14,
+    viewBox: '0 0 24 24',
+    fill: 'none',
+    stroke: 'currentColor',
+    strokeWidth: 1.8,
+    strokeLinecap: 'round',
+    strokeLinejoin: 'round',
+    'aria-hidden': true,
+  }
+
+  const icons = {
+    react: (
+      <svg {...common}>
+        <circle cx="12" cy="12" r="2" />
+        <ellipse cx="12" cy="12" rx="9" ry="3.8" />
+        <ellipse cx="12" cy="12" rx="9" ry="3.8" transform="rotate(60 12 12)" />
+        <ellipse cx="12" cy="12" rx="9" ry="3.8" transform="rotate(-60 12 12)" />
+      </svg>
+    ),
+    javascript: (
+      <svg {...common}>
+        <rect x="3" y="3" width="18" height="18" rx="3" />
+        <path d="M10 8v7a2 2 0 0 1-2 2" />
+        <path d="M15 14c.2 1.3 1.1 2 2.3 2 1.1 0 1.9-.5 1.9-1.4 0-2.2-4.4-1.2-4.4-4 0-1.5 1.2-2.6 3.1-2.6 1.7 0 2.8.8 3.1 2.3" />
+      </svg>
+    ),
+    motion: (
+      <svg {...common}>
+        <path d="M4 16V8l4 6 4-8 4 10 4-4" />
+      </svg>
+    ),
+    css: (
+      <svg {...common}>
+        <path d="M4 3h16l-1.5 16L12 21l-6.5-2L4 3Z" />
+        <path d="M8 8h8M8.5 12h7M9 16h5.5" />
+      </svg>
+    ),
+    laravel: (
+      <svg {...common}>
+        <path d="M5 8.5 12 4l7 4.5v7L12 20l-7-4.5v-7Z" />
+        <path d="M12 4v16M5 8.5 12 13l7-4.5" />
+      </svg>
+    ),
+    mysql: (
+      <svg {...common}>
+        <ellipse cx="12" cy="6" rx="7" ry="3" />
+        <path d="M5 6v6c0 1.7 3.1 3 7 3s7-1.3 7-3V6" />
+        <path d="M5 12v6c0 1.7 3.1 3 7 3s7-1.3 7-3v-6" />
+      </svg>
+    ),
+    api: (
+      <svg {...common}>
+        <path d="M8 8h8M8 12h8M8 16h5" />
+        <rect x="4" y="4" width="16" height="16" rx="3" />
+      </svg>
+    ),
+    python: (
+      <svg {...common}>
+        <path d="M8 10V6.5A2.5 2.5 0 0 1 10.5 4h3A2.5 2.5 0 0 1 16 6.5V9H9.5A1.5 1.5 0 0 0 8 10.5Z" />
+        <path d="M16 14v3.5a2.5 2.5 0 0 1-2.5 2.5h-3A2.5 2.5 0 0 1 8 17.5V15h6.5a1.5 1.5 0 0 0 1.5-1.5Z" />
+        <circle cx="11" cy="6.8" r="0.8" fill="currentColor" stroke="none" />
+        <circle cx="13" cy="17.2" r="0.8" fill="currentColor" stroke="none" />
+      </svg>
+    ),
+  }
+
+  return <span className="skill-icon">{icons[type] ?? null}</span>
+}
+
 const FRONTEND_SKILLS = [
-  { name: 'React.js',        pct: 88, icon: '⚛️' },
-  { name: 'JavaScript ES6+', pct: 85, icon: '🟨' },
-  { name: 'Framer Motion',   pct: 78, icon: '🎞️' },
-  { name: 'CSS / Tailwind',  pct: 90, icon: '🎨' },
+  { name: 'React.js',        pct: 88, icon: 'react' },
+  { name: 'JavaScript ES6+', pct: 85, icon: 'javascript' },
+  { name: 'Framer Motion',   pct: 78, icon: 'motion' },
+  { name: 'CSS / Tailwind',  pct: 90, icon: 'css' },
 ]
 
 const BACKEND_SKILLS = [
-  { name: 'Laravel / PHP', pct: 90, icon: '🐘' },
-  { name: 'MySQL',         pct: 82, icon: '🗄️' },
-  { name: 'API REST',      pct: 80, icon: '🔌' },
-  { name: 'Python',        pct: 65, icon: '🐍' },
+  { name: 'Laravel / PHP', pct: 90, icon: 'laravel' },
+  { name: 'MySQL',         pct: 82, icon: 'mysql' },
+  { name: 'API REST',      pct: 80, icon: 'api' },
+  { name: 'Python',        pct: 65, icon: 'python' },
 ]
 
 const VALUES = [
@@ -81,7 +153,7 @@ const VALUES = [
 
 export default function AboutPage() {
   return (
-    <main>
+    <main className="about-page">
       {/* ── Hero section ── */}
       <motion.section
         className="about-hero"
@@ -111,14 +183,14 @@ export default function AboutPage() {
 
       {/* ── Skills ── */}
       <motion.section className="skills-grid" {...fadeUp(0.05)}>
-        <div className="skills-block">
+        <div className="skills-block skills-block--frontend">
           <div className="skills-block__title skills-block__title--frontend">
             Frontend & Interfaces
           </div>
           {FRONTEND_SKILLS.map(({ name, pct, icon }, i) => (
             <SkillBar key={name} name={name} pct={pct} icon={icon} delay={i * 0.08} />
           ))}
-          <div className="chip-grid" style={{ marginTop: '1.75rem' }}>
+          <div className="chip-grid" style={{ marginTop: '2.2rem' }}>
             <span className="chip chip--purple">React.js</span>
             <span className="chip chip--purple">JavaScript</span>
             <span className="chip">Tailwind CSS</span>
@@ -127,14 +199,14 @@ export default function AboutPage() {
           </div>
         </div>
 
-        <div className="skills-block">
+        <div className="skills-block skills-block--backend">
           <div className="skills-block__title skills-block__title--backend">
             Backend & Architecture
           </div>
           {BACKEND_SKILLS.map(({ name, pct, icon }, i) => (
             <SkillBar key={name} name={name} pct={pct} icon={icon} delay={i * 0.08} />
           ))}
-          <div className="chip-grid" style={{ marginTop: '1.75rem' }}>
+          <div className="chip-grid" style={{ marginTop: '2.2rem' }}>
             <span className="chip chip--cyan">Laravel 12</span>
             <span className="chip chip--cyan">PHP</span>
             <span className="chip">MySQL</span>
