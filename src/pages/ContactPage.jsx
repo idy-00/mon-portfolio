@@ -412,13 +412,13 @@ export default function ContactPage() {
 
       {/* ── Socials ── */}
       <motion.div
-        style={{ textAlign: 'center' }}
+        style={{ textAlign: 'center', marginTop: '1rem' }}
         initial={{ opacity: 0, y: 16 }}
         whileInView={{ opacity: 1, y: 0 }}
         viewport={{ once: true }}
         transition={{ duration: 0.5 }}
       >
-        <div className="section-eyebrow" style={{ marginBottom: '1.25rem' }}>Retrouvez-moi aussi sur</div>
+        <div className="section-eyebrow" style={{ marginBottom: '1rem' }}>Retrouvez-moi aussi sur</div>
         <div className="socials-row">
           <a href="https://github.com/idy-00" target="_blank" rel="noreferrer" className="social-card">
             <svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor">

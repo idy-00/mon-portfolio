@@ -1,6 +1,6 @@
 import { useEffect, useRef, useState } from 'react'
 import { AnimatePresence, motion, useScroll, useTransform } from 'framer-motion'
-import { NavLink, Route, Routes, useLocation } from 'react-router-dom'
+import { NavLink, Route, Routes, useLocation, useNavigationType } from 'react-router-dom'
 import HomePage from './pages/HomePage'
 import AboutPage from './pages/AboutPage'
 import ServicesPage from './pages/ServicesPage'
@@ -19,6 +19,19 @@ const pageVariants = {
   initial: { opacity: 0, y: 16 },
   animate: { opacity: 1, y: 0, transition: { duration: 0.35, ease: [0.16, 1, 0.3, 1] } },
   exit:    { opacity: 0, y: -10, transition: { duration: 0.2, ease: 'easeIn' } },
+}
+
+function ScrollToTop() {
+  const { pathname } = useLocation()
+  const navType = useNavigationType()
+
+  useEffect(() => {
+    if (navType !== 'POP') {
+      window.scrollTo({ top: 0, behavior: 'instant' })
+    }
+  }, [pathname, navType])
+
+  return null
 }
 
 function ScrollProgress() {
@@ -165,6 +178,7 @@ function App() {
 
   return (
     <>
+      <ScrollToTop />
       <ScrollProgress />
       <div className="site-shell">
         <Topbar />

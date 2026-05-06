@@ -123,6 +123,7 @@ export default function ServicesPage() {
       {/* ── CTA ── */}
       <motion.section
         className="cta-section"
+        style={{ marginTop: '2rem' }}
         initial={{ opacity: 0, y: 20 }}
         whileInView={{ opacity: 1, y: 0 }}
         viewport={{ once: true, amount: 0.3 }}
