@@ -1,265 +1,343 @@
-import { useEffect, useRef, useState } from 'react'
-import { motion, useInView, useMotionValue, useSpring } from 'framer-motion'
+import { useEffect, useRef } from 'react'
 import { Link } from 'react-router-dom'
+import { gsap } from 'gsap'
+import { ScrollTrigger } from 'gsap/ScrollTrigger'
+import { SplitText } from 'gsap/SplitText'
+import { ScrambleTextPlugin } from 'gsap/ScrambleTextPlugin'
+import { projects } from '../data/projects'
 
-/* ── Text scramble hook ──
-   Chaque lettre apparait une par une avec quelques flickers
-   lents avant de se stabiliser sur la vraie valeur.
-── */
-const CHARSET = 'abcdefghijklmnopqrstuvwxyz'
+gsap.registerPlugin(ScrollTrigger, SplitText, ScrambleTextPlugin)
 
-function useScramble(words, { startDelay = 700, charInterval = 90, flickerCount = 5, flickerSpeed = 55 } = {}) {
-  const target = words.join(' ')
-  const [chars, setChars] = useState(Array(target.length).fill(''))
+/* Animated counter */
+function AnimatedCounter({ target, suffix = '', duration = 1.8 }) {
+  const ref = useRef(null)
+  const triggered = useRef(false)
 
   useEffect(() => {
-    const timers = []
-
-    Array.from(target).forEach((finalChar, idx) => {
-      if (finalChar === ' ') {
-        timers.push(setTimeout(() => {
-          setChars(prev => { const n = [...prev]; n[idx] = ' '; return n })
-        }, startDelay + idx * charInterval))
-        return
-      }
-
-      const charStart = startDelay + idx * charInterval
-
-      for (let f = 0; f < flickerCount; f++) {
-        timers.push(setTimeout(() => {
-          setChars(prev => {
-            const n = [...prev]
-            n[idx] = CHARSET[Math.floor(Math.random() * CHARSET.length)]
-            return n
-          })
-        }, charStart + f * flickerSpeed))
-      }
-
-      timers.push(setTimeout(() => {
-        setChars(prev => { const n = [...prev]; n[idx] = finalChar; return n })
-      }, charStart + flickerCount * flickerSpeed))
+    const el = ref.current
+    if (!el) return
+    const st = ScrollTrigger.create({
+      trigger: el,
+      start: 'top 85%',
+      once: true,
+      onEnter: () => {
+        if (triggered.current) return
+        triggered.current = true
+        const num = parseFloat(target)
+        gsap.fromTo({ val: 0 }, { val: num }, {
+          duration,
+          ease: 'power2.out',
+          onUpdate: function() {
+            el.textContent = Math.round(this.targets()[0].val) + suffix
+          },
+        })
+      },
     })
+    return () => st.kill()
+  }, [target, suffix, duration])
 
-    return () => timers.forEach(clearTimeout)
-  }, [])
-
-  return chars
+  return <span ref={ref}>0{suffix}</span>
 }
 
-/* ── Animated counter ── */
-function Counter({ to, suffix = '', delay = 0 }) {
-  const ref = useRef(null)
-  const isInView = useInView(ref, { once: true })
-  const count = useMotionValue(0)
-  const spring = useSpring(count, { stiffness: 80, damping: 20 })
-  const [display, setDisplay] = useState('0')
-
-  useEffect(() => {
-    if (!isInView) return
-    const timeout = setTimeout(() => count.set(to), delay)
-    return () => clearTimeout(timeout)
-  }, [isInView])
-
-  useEffect(() => {
-    spring.on('change', v => setDisplay(Math.round(v).toString()))
-  }, [])
-
-  return <span ref={ref}>{display}{suffix}</span>
-}
-
-/* ── Photo tilt 3D ── */
-function TiltPhoto({ src, alt }) {
-  const ref = useRef(null)
-  const rotateX = useMotionValue(0)
-  const rotateY = useMotionValue(0)
-  const sRotateX = useSpring(rotateX, { stiffness: 200, damping: 25 })
-  const sRotateY = useSpring(rotateY, { stiffness: 200, damping: 25 })
-
-  const onMouseMove = (e) => {
-    const rect = ref.current.getBoundingClientRect()
-    const cx = rect.left + rect.width / 2
-    const cy = rect.top + rect.height / 2
-    rotateX.set(((e.clientY - cy) / rect.height) * -14)
-    rotateY.set(((e.clientX - cx) / rect.width) * 14)
-  }
-
-  const onMouseLeave = () => { rotateX.set(0); rotateY.set(0) }
-
-  return (
-    <motion.div
-      ref={ref}
-      className="hero__photo-container"
-      onMouseMove={onMouseMove}
-      onMouseLeave={onMouseLeave}
-      style={{ rotateX: sRotateX, rotateY: sRotateY, transformStyle: 'preserve-3d', perspective: 800 }}
-      initial={{ opacity: 0, scale: 0.85 }}
-      animate={{ opacity: 1, scale: 1 }}
-      transition={{ duration: 0.8, ease: [0.16, 1, 0.3, 1], delay: 0.4 }}
-    >
-      <div className="hero__photo-glow" />
-      <div className="hero__photo-ring" />
-      <img src={src} alt={alt} className="hero__photo" />
-    </motion.div>
-  )
-}
-
-/* ── Scramble letter ── */
-function ScrambleLetter({ finalChar, current }) {
-  const isRevealed = current === finalChar
-  return (
-    <span
-      style={{
-        display: 'inline-block',
-        color: current && !isRevealed ? 'var(--text-muted)' : 'inherit',
-        transition: 'color 0.12s',
-      }}
-    >
-      {current || ' '}
-    </span>
-  )
-}
-
-const container = {
-  hidden: {},
-  show: { transition: { staggerChildren: 0.12, delayChildren: 0.05 } },
-}
-
-const fadeUp = {
-  hidden: { opacity: 0, y: 24 },
-  show: { opacity: 1, y: 0, transition: { duration: 0.65, ease: [0.16, 1, 0.3, 1] } },
-}
+const FEATURED = [
+  projects.find(p => p.slug === 'yankee'),
+  projects.find(p => p.slug === 'jeli'),
+  projects.find(p => p.slug === 'certifio'),
+].filter(Boolean)
 
 export default function HomePage() {
-  // "Idrissa Kane" => indices 0-6: Idrissa, 7: space, 8-11: Kane
-  const chars = useScramble(['Idrissa', 'Kane'])
+  const videoRef     = useRef(null)
+  const titleRef     = useRef(null)
+  const subtitleRef  = useRef(null)
+  const taglineRef   = useRef(null)
+  const actionsRef   = useRef(null)
+  const scrollRef    = useRef(null)
+  const pageRef      = useRef(null)
+
+  useEffect(() => {
+    const ctx = gsap.context(() => {
+
+      /* ── Initial states ── */
+      gsap.set(videoRef.current,    { opacity: 0 })
+      gsap.set(subtitleRef.current, { opacity: 0, y: 20 })
+      gsap.set(taglineRef.current,  { opacity: 0, y: 14 })
+      gsap.set(actionsRef.current,  { opacity: 0, y: 20 })
+      gsap.set(scrollRef.current,   { opacity: 0 })
+      gsap.set('.hero-bar-top',     { scaleX: 0, transformOrigin: 'left center' })
+      gsap.set('.hero-bar-bottom',  { scaleX: 0, transformOrigin: 'right center' })
+      gsap.set('.hero-letterbox-top',    { y: '-100%' })
+      gsap.set('.hero-letterbox-bottom', { y: '100%' })
+
+      /* ── Title ScrambleText ── */
+      gsap.set(titleRef.current, { opacity: 1 })
+      titleRef.current.textContent = '████████ ████'
+
+      const tl = gsap.timeline({ delay: 0.2 })
+
+      /* Letterbox cinéma */
+      tl.to('.hero-letterbox-top',    { y: '0%', duration: 0.7, ease: 'power3.out' }, 0)
+      tl.to('.hero-letterbox-bottom', { y: '0%', duration: 0.7, ease: 'power3.out' }, 0)
+
+      /* Vidéo fade in */
+      tl.to(videoRef.current, { opacity: 1, duration: 1.4, ease: 'power2.inOut' }, 0.3)
+
+      /* Barres horizontales */
+      tl.to('.hero-bar-top',    { scaleX: 1, duration: 0.8, ease: 'power3.inOut' }, 0.5)
+      tl.to('.hero-bar-bottom', { scaleX: 1, duration: 0.8, ease: 'power3.inOut' }, 0.65)
+
+      /* ScrambleText sur le titre */
+      tl.to(titleRef.current, {
+        duration: 1.4,
+        scrambleText: {
+          text: 'IDRISSA KANE',
+          chars: 'ABCDEFGHIJKLMNOPQRSTUVWXYZ',
+          revealDelay: 0.4,
+          speed: 0.4,
+        },
+        ease: 'none',
+      }, 0.9)
+
+      /* Subtitle + tagline + actions */
+      tl.to(subtitleRef.current, { opacity: 1, y: 0, duration: 0.5, ease: 'power2.out' }, 1.8)
+      tl.to(taglineRef.current,  { opacity: 1, y: 0, duration: 0.45, ease: 'power2.out' }, 1.95)
+      tl.to(actionsRef.current,  { opacity: 1, y: 0, duration: 0.45, ease: 'power2.out' }, 2.1)
+      tl.to(scrollRef.current,   { opacity: 1, duration: 0.4 }, 2.4)
+
+      /* ── Glitch périodique sur le titre ── */
+      const glitchLoop = gsap.timeline({ repeat: -1, repeatDelay: 6, delay: 4 })
+      glitchLoop
+        .to(titleRef.current, { skewX: 4, x: -4, duration: 0.06, ease: 'none' })
+        .to(titleRef.current, { skewX: -2, x: 3, duration: 0.06, ease: 'none' })
+        .to(titleRef.current, { skewX: 0, x: 0, duration: 0.06, ease: 'none' })
+        .to(titleRef.current, { opacity: 0.8, duration: 0.04 }, '+=0.1')
+        .to(titleRef.current, { opacity: 1, duration: 0.04 })
+
+      /* ── Scroll reveals ── */
+      ScrollTrigger.batch('.gsap-reveal', {
+        onEnter: els => gsap.to(els, {
+          opacity: 1, y: 0,
+          duration: 0.6, stagger: 0.1, ease: 'power3.out',
+        }),
+        start: 'top 83%', once: true,
+      })
+
+      gsap.fromTo('.featured-item',
+        { opacity: 0, y: 22 },
+        { opacity: 1, y: 0, duration: 0.5, stagger: 0.09, ease: 'power2.out',
+          scrollTrigger: { trigger: '.featured-list', start: 'top 80%', once: true } }
+      )
+      gsap.fromTo('.about-teaser__card',
+        { opacity: 0, y: 18, scale: 0.97 },
+        { opacity: 1, y: 0, scale: 1, duration: 0.48, stagger: 0.07, ease: 'power2.out',
+          scrollTrigger: { trigger: '.about-teaser__grid', start: 'top 83%', once: true } }
+      )
+      gsap.fromTo('.stat-item',
+        { opacity: 0, y: 14 },
+        { opacity: 1, y: 0, duration: 0.45, stagger: 0.07, ease: 'power2.out',
+          scrollTrigger: { trigger: '.stats-grid', start: 'top 83%', once: true } }
+      )
+
+    }, pageRef)
+
+    return () => ctx.revert()
+  }, [])
 
   return (
-    <main>
-      {/* ── Hero ── */}
-      <motion.section className="hero" variants={container} initial="hidden" animate="show">
-        <div className="hero__mesh">
-          <motion.div
-            className="hero__blob hero__blob--1"
-            animate={{ x: [0, 30, -20, 0], y: [0, -20, 30, 0] }}
-            transition={{ duration: 20, repeat: Infinity, ease: 'easeInOut' }}
-          />
-          <motion.div
-            className="hero__blob hero__blob--2"
-            animate={{ x: [0, -25, 15, 0], y: [0, 20, -25, 0] }}
-            transition={{ duration: 18, repeat: Infinity, ease: 'easeInOut', delay: 2 }}
-          />
-          <motion.div
-            className="hero__blob hero__blob--3"
-            animate={{ scale: [1, 1.3, 1], opacity: [0.08, 0.14, 0.08] }}
-            transition={{ duration: 8, repeat: Infinity, ease: 'easeInOut' }}
+    <div ref={pageRef}>
+
+      {/* ════════════ HERO ════════════ */}
+      <section className="hero" aria-label="Introduction">
+
+        {/* Film grain */}
+        <div className="hero-grain" aria-hidden="true" />
+
+        {/* Letterbox cinéma */}
+        <div className="hero-letterbox-top"  aria-hidden="true" />
+        <div className="hero-letterbox-bottom" aria-hidden="true" />
+
+        {/* Vidéo background — verticale CSS-rotated */}
+        <div className="hero-video-wrap" aria-hidden="true">
+          <video
+            ref={videoRef}
+            className="hero-video"
+            src="/videos/keyword.mp4"
+            autoPlay
+            loop
+            muted
+            playsInline
+            preload="auto"
           />
         </div>
 
-        <motion.div className="hero__content" variants={container}>
-          <motion.div variants={fadeUp}>
-            <div className="status-badge">
-              <span className="pulse-dot" />
-              Disponible pour de nouveaux projets
-            </div>
-          </motion.div>
+        {/* Overlay sombre */}
+        <div className="hero-overlay" aria-hidden="true" />
 
-          <motion.div variants={fadeUp}>
-            <h1 className="hero__name" aria-label="Idrissa Kane">
-              {/* "Idrissa" — indices 0 a 6, pas de coupure possible */}
-              <span style={{ whiteSpace: 'nowrap' }}>
-                {'Idrissa'.split('').map((ch, i) => (
-                  <ScrambleLetter key={i} finalChar={ch} current={chars[i]} />
-                ))}
-              </span>
-              {' '}
-              {/* "Kane" — indices 8 a 11 dans le tableau chars */}
-              <span style={{ whiteSpace: 'nowrap' }}>
-                {'Kane'.split('').map((ch, i) => (
-                  <ScrambleLetter key={i} finalChar={ch} current={chars[i + 8]} />
-                ))}
-              </span>
-            </h1>
-            <p className="hero__title">
-              <span className="gradient-text">Développeur Full Stack</span>
-            </p>
-          </motion.div>
+        {/* Content */}
+        <div className="hero__content">
 
-          <motion.p className="hero__desc" variants={fadeUp}>
-            Je conçois des applications web robustes et des interfaces immersives. De l'architecture backend jusqu'à l'animation de l'interface, je transforme vos idées en solutions digitales qui ont du sens.
-          </motion.p>
+          {/* Barres horizontales décoratives */}
+          <div className="hero-bar hero-bar-top"    aria-hidden="true" />
+          <div className="hero-bar hero-bar-bottom" aria-hidden="true" />
 
-          <motion.div className="hero__actions" variants={fadeUp}>
-            <Link to="/projets" className="btn btn--primary">
-              Voir mes réalisations
-              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
-                <path d="M5 12h14M12 5l7 7-7 7" />
+          {/* Titre principal */}
+          <h1
+            ref={titleRef}
+            className="hero__title"
+            aria-label="Idrissa Kane"
+          >
+            IDRISSA KANE
+          </h1>
+
+          {/* Subtitle */}
+          <p ref={subtitleRef} className="hero__subtitle">
+            Développeur Full Stack
+          </p>
+
+          {/* Tagline mono */}
+          <p ref={taglineRef} className="hero__tagline">
+            React · Flutter · Laravel · MySQL · Dakar
+          </p>
+
+          {/* Actions */}
+          <div ref={actionsRef} className="hero__actions">
+            <Link to="/projets" className="btn btn--primary" data-cursor="VOIR">
+              Voir mes projets
+              <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+                <path d="M5 12h14M12 5l7 7-7 7"/>
               </svg>
             </Link>
-            <Link to="/contact" className="btn btn--outline">
-              Discuter d'un projet
-            </Link>
-          </motion.div>
-
-          <motion.div variants={fadeUp} style={{ marginTop: '1rem' }}>
-            <div className="scroll-cue">
-              <span>Découvrir</span>
-              <div className="scroll-cue__arrow">
-                <span /><span /><span />
-              </div>
-            </div>
-          </motion.div>
-        </motion.div>
-
-        <div className="hero__photo-wrap">
-          <TiltPhoto src="/images/profil.png" alt="Idrissa Kane — Portrait" />
+            <Link to="/contact" className="btn btn--ghost" data-cursor="CONTACT">Me contacter</Link>
+          </div>
         </div>
-      </motion.section>
 
-      {/* ── Stats ── */}
-      <motion.section
-        className="stats-row"
-        initial={{ opacity: 0, y: 20 }}
-        whileInView={{ opacity: 1, y: 0 }}
-        viewport={{ once: true, amount: 0.3 }}
-        transition={{ duration: 0.5 }}
-      >
-        {[
-          { value: 20, suffix: '+', label: 'Projets livrés', desc: 'Web, SaaS, Desktop' },
-          { value: 2, suffix: ' ans', label: "D'expérience", desc: 'Full Stack' },
-          { value: 100, suffix: '%', label: 'Orienté résultats', desc: 'Impact mesurable' },
-        ].map(({ value, suffix, label, desc }, i) => (
-          <motion.div
-            key={label}
-            className="stat-card"
-            initial={{ opacity: 0, y: 20 }}
-            whileInView={{ opacity: 1, y: 0 }}
-            viewport={{ once: true }}
-            transition={{ duration: 0.5, delay: i * 0.1 }}
-            whileHover={{ y: -4 }}
-          >
-            <div className="stat-card__value">
-              <Counter to={value} suffix={suffix} delay={i * 120} />
+        {/* Scroll indicator */}
+        <div ref={scrollRef} className="hero__scroll" aria-hidden="true">
+          <span className="hero__scroll-label">Scroll</span>
+          <span className="hero__scroll-line" />
+        </div>
+      </section>
+
+      {/* ════════════ MARQUEE ════════════ */}
+      <div className="marquee-section" aria-hidden="true">
+        <div className="marquee-track">
+          {['React','Flutter','Laravel','MySQL','PHP','Dart','JavaScript','API REST','Mobile','Web',
+            'React','Flutter','Laravel','MySQL','PHP','Dart','JavaScript','API REST','Mobile','Web',
+          ].map((item, i) => (
+            <span key={i} className="marquee-item">
+              {item}<span className="marquee-sep"> · </span>
+            </span>
+          ))}
+        </div>
+      </div>
+
+      {/* ════════════ STATS ════════════ */}
+      <section className="stats-section" aria-label="En chiffres">
+        <div className="stats-grid">
+          {[
+            { target: '20', suffix: '+',  label: 'Projets livrés' },
+            { target: '2',  suffix: '',   label: "Ans d'expérience" },
+            { target: '100',suffix: '%',  label: 'Satisfaction client' },
+          ].map(({ target, suffix, label }) => (
+            <div key={label} className="stat-item">
+              <div className="stat-item__value">
+                <AnimatedCounter target={target} suffix={suffix} />
+              </div>
+              <div className="stat-item__label">{label}</div>
             </div>
-            <div className="stat-card__label">{label}</div>
-            <div className="stat-card__desc">{desc}</div>
-          </motion.div>
-        ))}
-      </motion.section>
+          ))}
+        </div>
+      </section>
 
-      {/* ── Tagline ── */}
-      <motion.section
-        className="tagline-section"
-        initial={{ opacity: 0, y: 20 }}
-        whileInView={{ opacity: 1, y: 0 }}
-        viewport={{ once: true, amount: 0.5 }}
-        transition={{ duration: 0.6 }}
-      >
-        <h2>
-          L&apos;alliance parfaite entre{' '}
-          <span className="gradient-text">logique algorithmique</span>{' '}
-          et esthétisme web.
-        </h2>
-      </motion.section>
-    </main>
+      {/* ════════════ FEATURED PROJECTS ════════════ */}
+      <section className="featured-section" aria-label="Projets récents">
+        <div className="featured-header gsap-reveal">
+          <div>
+            <div className="eyebrow">Sélection</div>
+            <h2>Projets récents</h2>
+          </div>
+          <Link to="/projets" className="btn btn--ghost">
+            Tous les projets
+            <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+              <path d="M5 12h14M12 5l7 7-7 7"/>
+            </svg>
+          </Link>
+        </div>
+
+        <div className="featured-list">
+          {FEATURED.map((p, i) => (
+            <a key={p.id} href={p.link} target="_blank" rel="noreferrer" className="featured-item" data-cursor="OUVRIR">
+              <span className="featured-item__num">0{i + 1}</span>
+              <div>
+                <div className="featured-item__title">{p.title}</div>
+                <div className="featured-item__tags">
+                  {p.stack.slice(0, 4).map(t => <span key={t} className="chip">{t}</span>)}
+                </div>
+              </div>
+              <div className="featured-item__arrow" aria-hidden="true">
+                <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+                  <path d="M5 12h14M12 5l7 7-7 7"/>
+                </svg>
+              </div>
+            </a>
+          ))}
+        </div>
+      </section>
+
+      {/* ════════════ ABOUT TEASER ════════════ */}
+      <section className="about-teaser" aria-label="À propos">
+        <div className="about-teaser__left">
+          <div className="eyebrow gsap-reveal">À propos</div>
+          <h2 className="gsap-reveal">Développeur Full&nbsp;Stack basé à Dakar</h2>
+          <p className="gsap-reveal">
+            Je conçois et développe des applications web et mobiles de bout en bout.
+            Du back-end Laravel à l'animation React — une seule interlocution.
+          </p>
+          <Link to="/a-propos" className="btn btn--ghost gsap-reveal">
+            En savoir plus
+            <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+              <path d="M5 12h14M12 5l7 7-7 7"/>
+            </svg>
+          </Link>
+        </div>
+
+        <div className="about-teaser__grid">
+          {[
+            { title: 'Full Stack',  text: "Du modèle de données à l'animation UI.",
+              icon: <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/></svg> },
+            { title: 'Mobile',     text: 'Apps iOS et Android avec Flutter & React Native.',
+              icon: <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round"><rect x="5" y="2" width="14" height="20" rx="2"/><line x1="12" y1="18" x2="12.01" y2="18"/></svg> },
+            { title: 'Backend',    text: 'APIs REST robustes avec Laravel et PHP.',
+              icon: <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round"><path d="M5 12h14M5 6h14M5 18h7"/></svg> },
+            { title: 'Paiement',   text: 'Wave, Orange Money, PayDunya intégrés.',
+              icon: <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round"><rect x="2" y="5" width="20" height="14" rx="2"/><line x1="2" y1="10" x2="22" y2="10"/></svg> },
+          ].map(({ title, text, icon }) => (
+            <div key={title} className="about-teaser__card">
+              <div className="about-teaser__card-icon">{icon}</div>
+              <div className="about-teaser__card-title">{title}</div>
+              <div className="about-teaser__card-text">{text}</div>
+            </div>
+          ))}
+        </div>
+      </section>
+
+      {/* ════════════ CTA ════════════ */}
+      <section className="cta-section" aria-label="Contact">
+        <div className="eyebrow gsap-reveal" style={{ justifyContent: 'center' }}>Parlons-en</div>
+        <h2 className="gsap-reveal">Un projet en tête ?</h2>
+        <p className="gsap-reveal">Premier échange gratuit. Décrivez votre idée — je vous réponds sous 24h.</p>
+        <div className="btn-row gsap-reveal">
+          <Link to="/contact" className="btn btn--primary">
+            Démarrer un projet
+            <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+              <path d="M5 12h14M12 5l7 7-7 7"/>
+            </svg>
+          </Link>
+          <a href="/CV_IDRISSA_M_KANE.pdf" target="_blank" rel="noopener noreferrer" className="btn btn--ghost">
+            Télécharger le CV
+          </a>
+        </div>
+      </section>
+
+    </div>
   )
 }
