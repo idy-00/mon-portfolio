@@ -99,8 +99,37 @@ export const manualProjects = [
     challenge:
       "Le défi principal était les notifications FCM sur Android 13+ avec l'app en background. La solution data-only combinée à un foreground service Flutter a permis d'afficher les alertes plein écran sans exception de batterie système.",
     link: 'https://github.com/idy-00',
-    live: null,
-    screenshot: null,
+    live: 'https://teal-meerkat-951921.hostingersite.com',
+    screenshot: '/images/yankee-screenshot.png',
+  },
+  {
+    id: 12,
+    slug: 'sunufoot',
+    repoName: null,
+    title: 'SunuFoot — Réservation de terrains',
+    category: 'Application Mobile & Web',
+    year: '2025 – 2026',
+    role: 'Développeur Full Stack',
+    duration: '4 mois',
+    stack: ['Flutter', 'Dart', 'PHP 8', 'Tailwind CSS', 'GSAP', 'MySQL', 'Firebase FCM', 'Wave', 'Orange Money'],
+    summary:
+      "Plateforme de réservation de terrains de football au Sénégal — app mobile Flutter, interface web propriétaires de terrains et backend PHP MVC sur Hostinger.",
+    impact:
+      "Paiement mobile money intégré (Wave & Orange Money), notifications push Firebase FCM, gestion multi-rôles (joueur / propriétaire / admin), animations GSAP sur la landing web.",
+    features: [
+      "App mobile Flutter : recherche de terrains, réservation en ligne, paiement Wave/Orange Money",
+      "Interface propriétaire : gestion des créneaux, suivi des réservations, statistiques revenus",
+      "Backend PHP 8 MVC : API REST complète, gestion états réservations, webhook paiement",
+      "Landing web avec animations GSAP et vidéo hero",
+      "Firebase FCM : notifications de confirmation et rappels de réservation",
+      "Gestion multi-rôles : joueur, propriétaire de terrain, administrateur",
+      "Carte interactive : localisation des terrains à proximité",
+    ],
+    challenge:
+      "Synchroniser les disponibilités en temps réel entre l'app mobile et l'interface web quand plusieurs joueurs réservent le même créneau simultanément, résolu avec un verrou pessimiste MySQL et une file d'attente côté backend.",
+    link: 'https://github.com/idy-00',
+    live: 'https://peru-spoonbill-192767.hostingersite.com',
+    screenshot: '/images/sunufoot-screenshot.png',
   },
   {
     id: 1,
@@ -156,7 +185,7 @@ export const manualProjects = [
       "La gestion des conflits de réservation simultanée : utilisation de transactions MySQL avec verrou pessimiste pour éviter la surréservation quand plusieurs clients réservent le même article en même temps.",
     link: 'https://github.com/idy-00/Antigaspi',
     live: null,
-    screenshot: null,
+    screenshot: '/images/jeli-screenshot.png',
   },
   {
     id: 3,
@@ -234,6 +263,60 @@ export const manualProjects = [
     challenge:
       "Concevoir un algorithme de bipartite matching équitable sans librairie externe, résolu avec une approche greedy + backtracking léger sur les contraintes de diversité.",
     link: 'https://github.com/idy-00/Projet-de-Parrainage-PYTHON-',
+    live: null,
+    screenshot: null,
+  },
+  {
+    id: 6,
+    slug: 'bloc-estm',
+    repoName: 'Plateforme-BLOC-ESTM-',
+    title: 'BLOC ESTM',
+    category: 'Application Web',
+    year: '2024',
+    role: 'Développeur Full Stack',
+    duration: '3 semaines',
+    stack: ['PHP', 'JavaScript', 'MySQL', 'Bootstrap'],
+    summary:
+      "Plateforme web de communication interne et d'espace collaboratif pour l'ESTM de Dakar — annonces, documents partagés et messagerie entre étudiants et administration.",
+    impact:
+      "Authentification multi-rôles (étudiant / admin), gestion des annonces et documents, messagerie interne entre membres.",
+    features: [
+      "Tableau d'annonces : publication et consultation des actualités de l'école",
+      "Espace documents : partage de cours, TD et ressources pédagogiques",
+      "Messagerie interne : communication directe entre étudiants et administration",
+      "Authentification multi-rôles : étudiant, enseignant, administrateur",
+      "Interface responsive Bootstrap — accessible sur mobile",
+    ],
+    challenge:
+      "Implémenter un système de notifications en temps réel sans WebSocket sur un hébergement mutualisé, résolu avec du long-polling PHP côté serveur.",
+    link: 'https://github.com/idy-00/Plateforme-BLOC-ESTM-',
+    live: null,
+    screenshot: null,
+  },
+  {
+    id: 13,
+    slug: 'bachelor-game',
+    repoName: 'bachelor',
+    title: 'Bachelor Game',
+    category: 'Application Web',
+    year: '2024',
+    role: 'Développeur Full Stack',
+    duration: '2 semaines',
+    stack: ['PHP', 'JavaScript', 'MySQL', 'WebSockets'],
+    summary:
+      "Jeu de Bachelor multijoueur en temps réel — les participants s'affrontent dans un quiz de culture générale depuis leur téléphone, façon émission TV.",
+    impact:
+      "Synchronisation temps réel des questions et scores entre tous les joueurs connectés, interface mobile-first pensée pour jouer en soirée entre amis.",
+    features: [
+      "Salle d'attente : le host démarre la partie quand tous les joueurs sont prêts",
+      "Questions synchronisées en temps réel — tous voient la même question au même moment",
+      "Chronomètre par question avec décompte visible",
+      "Classement live mis à jour après chaque réponse",
+      "Interface mobile-first : jouable depuis n'importe quel téléphone sans installation",
+    ],
+    challenge:
+      "Synchroniser les états de jeu entre plusieurs clients simultanés en PHP pur sans Node.js — résolu avec un mécanisme de polling court et une table d'état en base de données.",
+    link: 'https://github.com/idy-00/bachelor',
     live: null,
     screenshot: null,
   },
