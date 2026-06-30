@@ -38,3 +38,8 @@ dist-ssr
 
 # Temporary or local folders
 temp-ui-ux-pro-max-skill/
+
+# Auto-generated portfolio data (sync-projects output)
+generated/
+public/generated/
+logs/
