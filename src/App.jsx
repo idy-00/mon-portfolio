@@ -8,6 +8,7 @@ import ServicesPage       from './pages/ServicesPage'
 import ProjectsPage       from './pages/ProjectsPage'
 import ProjectDetailPage  from './pages/ProjectDetailPage'
 import ContactPage        from './pages/ContactPage'
+import InsightsPage       from './pages/InsightsPage'
 
 const NAV_ITEMS = [
   { to: '/', label: 'Accueil', end: true },
@@ -141,6 +142,19 @@ function ScrollToTop() {
   useEffect(() => {
     if (navType !== 'POP') window.scrollTo({ top: 0, behavior: 'instant' })
   }, [pathname, navType])
+  return null
+}
+
+/* ── Dynamic canonical + og:url ── */
+function DynamicMeta() {
+  const { pathname } = useLocation()
+  useEffect(() => {
+    const url = `https://ikdev.tech${pathname === '/' ? '' : pathname}`
+    const canonical = document.getElementById('canonical-link')
+    if (canonical) canonical.setAttribute('href', pathname === '/' ? 'https://ikdev.tech/' : url)
+    const ogUrl = document.querySelector('meta[property="og:url"]')
+    if (ogUrl) ogUrl.setAttribute('content', pathname === '/' ? 'https://ikdev.tech/' : url)
+  }, [pathname])
   return null
 }
 
@@ -338,6 +352,7 @@ function App() {
   return (
     <>
       <ScrollToTop />
+      <DynamicMeta />
       <SiteGrain />
       <CustomCursor />
       <ScrollProgress />
@@ -374,6 +389,7 @@ function App() {
               <Route path="/projets"            element={<ProjectsPage />} />
               <Route path="/projets/:slug"      element={<ProjectDetailPage />} />
               <Route path="/contact"            element={<ContactPage />} />
+              <Route path="/insights"           element={<InsightsPage />} />
             </Routes>
 
             <footer className="footer-wrap">
