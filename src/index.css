@@ -1716,6 +1716,21 @@ strong { font-weight: 600; color: var(--text); }
   .stat-item__value { font-size: clamp(1.5rem, 6vw, 2.2rem); }
   .stat-item__label { font-size: 0.55rem; }
 
+  /* Carte mobile : layout vertical sur petit écran */
+  .project-card--mobile {
+    grid-template-columns: 1fr;
+    grid-column: span 1;
+    min-height: auto;
+  }
+  .project-card__mobile-img {
+    height: 200px;
+    position: relative;
+  }
+  .project-card__mobile-content {
+    border-left: none;
+    border-top: 1px solid var(--line);
+  }
+
   /* Curseur custom désactivé sur mobile (pas de souris) */
   * { cursor: auto !important; }
   .cursor-dot, .cursor-ring { display: none !important; }
