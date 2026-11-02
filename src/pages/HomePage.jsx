@@ -215,8 +215,8 @@ export default function HomePage() {
             je code et je mets en ligne, projet après projet.
           </p>
           <div className="sx-hero__actions">
-            <Link to="/projets" className="btn btn--primary" data-cursor="VOIR">Voir la série <Arrow /></Link>
-            <Link to="/contact" className="btn btn--ghost" data-cursor="CONTACT">Démarrer un projet</Link>
+            <Link to="/projets" className="btn btn--primary">Voir la série <Arrow /></Link>
+            <Link to="/contact" className="btn btn--ghost">Démarrer un projet</Link>
           </div>
         </div>
 
@@ -273,7 +273,7 @@ export default function HomePage() {
                 key={p.slug}
                 to={`/projets/${p.slug}`}
                 className={`sx-release ${i % 2 === 0 ? 'sx-release--left' : 'sx-release--right'}`}
-                data-cursor="OUVRIR"
+               
               >
                 <div className="sx-release__shot">
                   {p.screenshot && <img src={p.screenshot} alt={`Aperçu de ${p.title}`} loading="lazy" decoding="async" />}

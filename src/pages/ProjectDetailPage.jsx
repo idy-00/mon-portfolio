@@ -5,7 +5,6 @@ import { gsap } from 'gsap'
 import { ScrollTrigger } from 'gsap/ScrollTrigger'
 import { SplitText } from 'gsap/SplitText'
 import { projects } from '../data/projects'
-import IPhoneFrame from '../components/IPhoneFrame'
 
 gsap.registerPlugin(ScrollTrigger, SplitText)
 
@@ -120,7 +119,7 @@ export default function ProjectDetailPage() {
     <main ref={pageRef} className="pd-page">
       {/* ── Back ── */}
       <div className="pd-back-wrap">
-        <Link to="/projets" className="pd-back" data-cursor="PROJETS">
+        <Link to="/projets" className="pd-back">
           <IconArrowLeft />
           <span>Tous les projets</span>
         </Link>
@@ -149,7 +148,7 @@ export default function ProjectDetailPage() {
                 target="_blank"
                 rel="noreferrer noopener"
                 className="btn btn--primary pd-btn-live"
-                data-cursor="VOIR"
+               
               >
                 <IconLink />
                 Voir le site
@@ -161,7 +160,7 @@ export default function ProjectDetailPage() {
                 target="_blank"
                 rel="noreferrer noopener"
                 className="btn btn--ghost"
-                data-cursor="GITHUB"
+               
               >
                 <IconGitHub />
                 Code source
@@ -190,7 +189,7 @@ export default function ProjectDetailPage() {
             target="_blank"
             rel="noreferrer noopener"
             className="pd-live-bar__url"
-            data-cursor="OUVRIR"
+           
           >
             {project.live}
             <IconLink />
@@ -236,7 +235,7 @@ export default function ProjectDetailPage() {
 
           {/* iPhone sticky à droite */}
           <div className="pd-phone-sticky">
-            <IPhoneFrame
+            <img className="pd-phone-img"
               src={project.screenshot}
               alt={`Capture d'écran de ${project.title}`}
             />
@@ -310,7 +309,7 @@ export default function ProjectDetailPage() {
               target="_blank"
               rel="noreferrer noopener"
               className="btn btn--primary"
-              data-cursor="OUVRIR"
+             
             >
               Ouvrir
               <IconArrowRight />
@@ -323,14 +322,14 @@ export default function ProjectDetailPage() {
       <nav className="pd-nav-projects" aria-label="Projet précédent / suivant">
         <div className="pd-nav-projects__inner">
           {prev ? (
-            <Link to={`/projets/${prev.slug}`} className="pd-nav-card pd-nav-card--prev" data-cursor="PRÉCÉDENT">
+            <Link to={`/projets/${prev.slug}`} className="pd-nav-card pd-nav-card--prev">
               <span className="pd-nav-card__dir">← Précédent</span>
               <span className="pd-nav-card__title">{prev.title}</span>
               <span className="pd-nav-card__cat">{prev.category}</span>
             </Link>
           ) : <div />}
           {next ? (
-            <Link to={`/projets/${next.slug}`} className="pd-nav-card pd-nav-card--next" data-cursor="SUIVANT">
+            <Link to={`/projets/${next.slug}`} className="pd-nav-card pd-nav-card--next">
               <span className="pd-nav-card__dir">Suivant →</span>
               <span className="pd-nav-card__title">{next.title}</span>
               <span className="pd-nav-card__cat">{next.category}</span>

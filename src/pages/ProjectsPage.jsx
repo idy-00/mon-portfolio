@@ -66,14 +66,14 @@ function ProjectCard({ project, index }) {
                 {haslive && (
                   <a href={project.live} target="_blank" rel="noreferrer"
                     className="project-card__live-badge"
-                    onClick={e => e.stopPropagation()} data-cursor="VOIR">
+                    onClick={e => e.stopPropagation()}>
                     <IconLive /><span>Live</span>
                   </a>
                 )}
                 {project.link && (
                   <a href={project.link} target="_blank" rel="noreferrer"
                     className="project-card__github"
-                    onClick={e => e.stopPropagation()} data-cursor="GITHUB">
+                    onClick={e => e.stopPropagation()}>
                     <IconGitHub />
                   </a>
                 )}
@@ -90,7 +90,7 @@ function ProjectCard({ project, index }) {
               )}
             </div>
             <Link to={`/projets/${project.slug}`} className="project-card__cta"
-              data-cursor="DÉTAIL" aria-label={`Voir le détail de ${project.title}`}>
+              aria-label={`Voir le détail de ${project.title}`}>
               <span>Voir le projet</span>
               <IconArrow />
             </Link>
@@ -110,14 +110,14 @@ function ProjectCard({ project, index }) {
               {haslive && (
                 <a href={project.live} target="_blank" rel="noreferrer"
                   className="project-card__live-badge"
-                  onClick={e => e.stopPropagation()} data-cursor="VOIR">
+                  onClick={e => e.stopPropagation()}>
                   <IconLive /><span>Live</span>
                 </a>
               )}
               {project.link && (
                 <a href={project.link} target="_blank" rel="noreferrer"
                   className="project-card__github"
-                  onClick={e => e.stopPropagation()} data-cursor="GITHUB">
+                  onClick={e => e.stopPropagation()}>
                   <IconGitHub />
                 </a>
               )}
@@ -134,7 +134,7 @@ function ProjectCard({ project, index }) {
             )}
           </div>
           <Link to={`/projets/${project.slug}`} className="project-card__cta"
-            data-cursor="DÉTAIL" aria-label={`Voir le détail de ${project.title}`}>
+            aria-label={`Voir le détail de ${project.title}`}>
             <span>Voir le projet</span>
             <IconArrow />
           </Link>

@@ -78,7 +78,7 @@ function getStoredStats() {
   try {
     const stored = localStorage.getItem(STATS_KEY)
     if (stored) return JSON.parse(stored)
-  } catch (e) { /* ignore */ }
+  } catch { /* ignore */ }
   return null
 }
 
@@ -140,21 +140,16 @@ function generateMockStats() {
 }
 
 export default function InsightsPage() {
-  const [stats, setStats] = useState(null)
-  const [loading, setLoading] = useState(true)
-  const pageRef = useRef(null)
-
-  useEffect(() => {
+  // lecture synchrone au premier rendu (même comportement, sans setState dans un effet)
+  const [stats, setStats] = useState(() => {
     const stored = getStoredStats()
-    if (stored) {
-      setStats(stored)
-    } else {
-      const mock = generateMockStats()
-      localStorage.setItem(STATS_KEY, JSON.stringify(mock))
-      setStats(mock)
-    }
-    setLoading(false)
-  }, [])
+    if (stored) return stored
+    const mock = generateMockStats()
+    try { localStorage.setItem(STATS_KEY, JSON.stringify(mock)) } catch { /* stockage bloqué */ }
+    return mock
+  })
+  const [loading, setLoading] = useState(false)
+  const pageRef = useRef(null)
 
   useEffect(() => {
     if (!stats || !pageRef.current) return

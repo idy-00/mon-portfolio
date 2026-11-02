@@ -2,30 +2,12 @@ import { useEffect, useRef } from 'react'
 import { Link } from 'react-router-dom'
 import { gsap } from 'gsap'
 import { ScrollTrigger } from 'gsap/ScrollTrigger'
-import { motion, useMotionValue, useSpring, useTransform } from 'framer-motion'
 
 gsap.registerPlugin(ScrollTrigger)
 
-function ServiceCard({ num, icon, title, description, tags, delay = 0 }) {
-  const ref = useRef(null)
-  const x = useMotionValue(0), y = useMotionValue(0)
-  const sx = useSpring(x, { stiffness: 160, damping: 22 })
-  const sy = useSpring(y, { stiffness: 160, damping: 22 })
-  const rotateX = useTransform(sy, [-0.5, 0.5], ['5deg', '-5deg'])
-  const rotateY = useTransform(sx, [-0.5, 0.5], ['-5deg', '5deg'])
-
-  const onMove = (e) => {
-    const rect = ref.current.getBoundingClientRect()
-    x.set((e.clientX - rect.left) / rect.width - 0.5)
-    y.set((e.clientY - rect.top) / rect.height - 0.5)
-  }
-  const onLeave = () => { x.set(0); y.set(0) }
-
+function ServiceCard({ num, icon, title, description, tags }) {
   return (
-    <motion.div ref={ref} className="service-card"
-      onMouseMove={onMove} onMouseLeave={onLeave}
-      style={{ rotateX, rotateY, transformStyle: 'preserve-3d', transformPerspective: '900px' }}
-    >
+    <div className="service-card">
       <span className="service-card__num">{num}</span>
       <div className="service-card__icon">{icon}</div>
       <h2>{title}</h2>
@@ -33,7 +15,7 @@ function ServiceCard({ num, icon, title, description, tags, delay = 0 }) {
       <div className="chip-grid">
         {tags.map(t => <span key={t} className="chip">{t}</span>)}
       </div>
-    </motion.div>
+    </div>
   )
 }
 
