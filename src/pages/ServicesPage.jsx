@@ -1,132 +1,162 @@
-import { useEffect, useRef } from 'react'
+import { useRef } from 'react'
 import { Link } from 'react-router-dom'
-import { gsap } from 'gsap'
-import { ScrollTrigger } from 'gsap/ScrollTrigger'
-
-gsap.registerPlugin(ScrollTrigger)
-
-function ServiceCard({ num, icon, title, description, tags }) {
-  return (
-    <div className="service-card">
-      <span className="service-card__num">{num}</span>
-      <div className="service-card__icon">{icon}</div>
-      <h2>{title}</h2>
-      <p>{description}</p>
-      <div className="chip-grid">
-        {tags.map(t => <span key={t} className="chip">{t}</span>)}
-      </div>
-    </div>
-  )
-}
+import { gsap, ScrollTrigger, REDUCE } from '../lib/motion'
+import { usePageMotion } from '../lib/usePageMotion'
+import { BY_SLUG } from '../lib/site'
+import SplitChars from '../components/SplitChars'
+import Phone from '../components/Phone'
+import NextPage from '../components/NextPage'
 
 const SERVICES = [
   {
-    num: '01',
-    title: 'Applications Mobiles',
-    description: "Apps iOS et Android avec Flutter — une seule codebase, deux plateformes. Notifications push FCM, GPS, paiement mobile money, du MVP au produit fini.",
+    title: 'Applications mobiles',
+    text: 'Apps iOS et Android avec Flutter. Une seule codebase, deux plateformes. Notifications push FCM, GPS, paiement mobile money, du MVP au produit fini.',
     tags: ['Flutter', 'Dart', 'iOS', 'Android', 'Firebase FCM'],
-    icon: (
-      <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round">
-        <rect x="5" y="2" width="14" height="20" rx="2"/>
-        <line x1="12" y1="18" x2="12.01" y2="18"/>
-      </svg>
-    ),
+    visual: 'sunufoot',
   },
   {
-    num: '02',
-    title: 'Applications Web & SaaS',
-    description: "Apps web et SaaS claires, scalables, orientées usage. Architecture propre, données bien posées.",
+    title: 'Applications web & SaaS',
+    text: 'Apps web et SaaS claires, scalables, orientées usage. Architecture propre, données bien posées.',
     tags: ['React', 'Laravel 12', 'MySQL', 'WebSockets', 'API REST'],
-    icon: (
-      <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round">
-        <rect x="2" y="3" width="20" height="14" rx="2"/>
-        <line x1="8" y1="21" x2="16" y2="21"/>
-        <line x1="12" y1="17" x2="12" y2="21"/>
-      </svg>
-    ),
+    visual: 'finora360',
   },
   {
-    num: '03',
-    title: 'E-Commerce & Paiement',
-    description: "Boutiques rapides et sécurisées. Paiement intégré, stock et commandes bien gérés.",
+    title: 'E‑commerce & paiement',
+    text: 'Boutiques rapides et sécurisées. Paiement intégré, stock et commandes bien gérés.',
     tags: ['Laravel', 'PayDunya', 'PHP', 'MySQL', 'Stripe'],
-    icon: (
-      <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round">
-        <circle cx="9" cy="21" r="1"/><circle cx="20" cy="21" r="1"/>
-        <path d="M1 1h4l2.68 13.39a2 2 0 0 0 2 1.61h9.72a2 2 0 0 0 2-1.61L23 6H6"/>
-      </svg>
-    ),
+    visual: 'emirati-vape',
   },
   {
-    num: '04',
-    title: 'Sites Vitrines & Portfolios',
-    description: "Sites clairs et rapides, pensés pour convertir. Design propre, SEO soigné, animations utiles.",
+    title: 'Sites vitrines & portfolios',
+    text: 'Sites clairs et rapides, pensés pour convertir. Design propre, SEO soigné, animations utiles.',
     tags: ['React', 'GSAP', 'SEO', 'Responsive', 'Animations'],
-    icon: (
-      <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round">
-        <path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/>
-        <polyline points="9 22 9 12 15 12 15 22"/>
-      </svg>
-    ),
+    visual: 'caane-jewelry',
   },
 ]
 
-export default function ServicesPage() {
-  const pageRef = useRef(null)
+const TERMINAL = [
+  ['p', '$ cadrage --besoin'],
+  ['o', "Le besoin, le périmètre, le budget. Rien n'est codé avant."],
+  ['p', '$ maquettes --charte client'],
+  ['o', 'Écrans validés avec vous, sur votre identité.'],
+  ['p', '$ build --web --mobile --api'],
+  ['o', 'Laravel, React, Flutter. Paiement local branché.'],
+  ['p', '$ deploy --prod'],
+  ['o', 'Mise en ligne, domaine, emails.'],
+  ['p', '$ suivi --maintenance'],
+  ['o', 'Un seul interlocuteur après la livraison.'],
+]
 
-  useEffect(() => {
-    const ctx = gsap.context(() => {
-      gsap.fromTo('.services-page-header > *',
-        { opacity: 0, y: 20 },
-        { opacity: 1, y: 0, duration: 0.6, stagger: 0.1, ease: 'power2.out', delay: 0.05 }
-      )
-      gsap.fromTo('.service-card',
-        { opacity: 0, y: 32 },
-        { opacity: 1, y: 0, duration: 0.6, stagger: 0.1, ease: 'power2.out',
-          scrollTrigger: { trigger: '.services-grid', start: 'top 78%', once: true } }
-      )
-      gsap.fromTo('.services-cta',
-        { opacity: 0, y: 24 },
-        { opacity: 1, y: 0, duration: 0.6, ease: 'power2.out',
-          scrollTrigger: { trigger: '.services-cta', start: 'top 82%', once: true } }
-      )
-    }, pageRef)
-    return () => ctx.revert()
-  }, [])
+function Visual({ slug }) {
+  const p = BY_SLUG[slug]
+  if (!p?.image) return <div className="scard__vis" />
+  if (p.isPhone) return <div className="scard__vis scard__vis--phone"><Phone src={p.image} alt={`${p.name} sur mobile`} /></div>
+  return <div className="scard__vis"><img src={p.image} alt={`Capture de ${p.name}`} loading="lazy" decoding="async" /></div>
+}
+
+function line(kind, text) {
+  const d = document.createElement('div')
+  d.className = kind
+  d.textContent = text
+  return d
+}
+
+export default function ServicesPage() {
+  const ref = useRef(null)
+
+  usePageMotion(ref, ({ q, add }) => {
+    const body = q('.term__body')[0]
+    const cards = q('.scard')
+
+    if (REDUCE) { body.replaceChildren(...TERMINAL.map(([k, s]) => line(k, s))); return }
+
+    // cartes empilées : la précédente rétrécit et s'assombrit quand la suivante arrive (desktop)
+    const mm = gsap.matchMedia()
+    add(() => mm.revert())
+    mm.add('(min-width: 861px)', () => {
+      cards.forEach((c, i) => {
+        if (i === cards.length - 1) return
+        gsap.to(c, { scale: 0.9, filter: 'brightness(.45)', ease: 'none', scrollTrigger: { trigger: cards[i + 1], start: 'top bottom', end: 'top 12%', scrub: true } })
+      })
+    })
+    cards.forEach((c) => {
+      gsap.from(c.querySelector('h2'), { yPercent: 40, autoAlpha: 0, duration: 1.1, ease: 'expo.out', scrollTrigger: { trigger: c, start: 'top 70%' } })
+      const vis = c.querySelector('.scard__vis img, .scard__vis .phone')
+      if (vis) gsap.fromTo(vis, { scale: 1.15 }, { scale: 1, ease: 'none', scrollTrigger: { trigger: c, start: 'top bottom', end: 'top 15%', scrub: true } })
+    })
+
+    /* Terminal : se tape tout seul à l'entrée dans l'écran */
+    let timer
+    add(() => clearTimeout(timer))
+    body.replaceChildren()
+    ScrollTrigger.create({
+      trigger: q('.term')[0], start: 'top 75%', once: true,
+      onEnter: () => {
+        let i = 0
+        const next = () => {
+          if (i >= TERMINAL.length) {
+            const prompt = document.createElement('span')
+            prompt.className = 'p'
+            prompt.textContent = '$ '
+            const caret = document.createElement('span')
+            caret.className = 'caret'
+            body.append(prompt, caret)
+            return
+          }
+          const [kind, s] = TERMINAL[i]
+          const d = line(kind, '')
+          body.appendChild(d)
+          let k = 0
+          const type = () => {
+            d.textContent = s.slice(0, ++k)
+            if (k < s.length) timer = setTimeout(type, kind === 'p' ? 28 : 10)
+            else { i++; timer = setTimeout(next, kind === 'p' ? 160 : 340) }
+          }
+          type()
+        }
+        next()
+      },
+    })
+  })
 
   return (
-    <main ref={pageRef}>
-      {/* ── Header ── */}
-      <div className="services-page-header">
-        <div>
-          <div className="eyebrow eyebrow--accent">Ce que je construis</div>
-          <h1>Mes <em>Services</em></h1>
-        </div>
-        <p>
-          Du cadrage à la mise en ligne, je prends en charge chaque étape du projet.
-          Une seule interlocution, du début à la fin.
-        </p>
-      </div>
-
-      {/* ── Grid ── */}
-      <div className="services-grid">
-        {SERVICES.map((s, i) => (
-          <ServiceCard key={s.title} {...s} delay={i * 0.08} />
-        ))}
-      </div>
-
-      {/* ── CTA ── */}
-      <section className="services-cta">
-        <div className="eyebrow eyebrow--accent" style={{ justifyContent: 'center' }}>Prêt à démarrer ?</div>
-        <h2>Un projet en tête ?</h2>
-        <p>Parlons-en — premier échange gratuit, sans engagement.</p>
-        <Link to="/contact" className="btn btn--primary">
-          Discutons-en
-          <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
-            <path d="M5 12h14M12 5l7 7-7 7"/>
-          </svg>
-        </Link>
+    <div ref={ref} className="services">
+      <section className="s-head wrap">
+        <span className="mono" data-scramble>SN·02 · Ce que je construis</span>
+        <SplitChars className="h-xl" text="Services" />
+        <p className="lede">Du cadrage à la mise en ligne, je prends en charge chaque étape du projet. Un seul interlocuteur, du début à la fin.</p>
       </section>
-    </main>
+
+      <section className="stackcards wrap" aria-label="Services">
+        {SERVICES.map((s, i) => (
+          <article className="scard" key={s.title}>
+            <div className="scard__txt">
+              <span className="scard__n" aria-hidden="true">{String(i + 1).padStart(2, '0')}</span>
+              <div>
+                <h2>{s.title}</h2>
+                <p>{s.text}</p>
+                <ul className="pills" aria-label="Outils">{s.tags.map((t) => <li key={t}>{t}</li>)}</ul>
+              </div>
+            </div>
+            <Visual slug={s.visual} />
+          </article>
+        ))}
+      </section>
+
+      <section className="process wrap" aria-label="Méthode">
+        <div className="process__txt">
+          <span className="mono" data-scramble>Méthode</span>
+          <h2 className="h-l">Du cadrage à la mise en ligne.</h2>
+          <p className="lede">Premier échange gratuit, sans engagement.</p>
+          <Link className="btn btn--solid" to="/contact">Démarrer un projet</Link>
+        </div>
+        <div className="term" role="img" aria-label={`Étapes d'un projet : ${TERMINAL.filter(([k]) => k === 'o').map(([, s]) => s).join(' ')}`}>
+          <div className="term__bar" aria-hidden="true"><i /><i /><i /><span>idy@dakar: ~/nouveau-projet</span></div>
+          <div className="term__body" aria-hidden="true" />
+        </div>
+      </section>
+
+      <NextPage to="/a-propos" kicker="Page suivante · SN·03" title="À propos" />
+    </div>
   )
 }

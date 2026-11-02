@@ -5,6 +5,7 @@ import './styles/tokens.css'
 import './styles/base.css'
 import './styles/pages.css'
 import './styles/projects.css'
+import './styles/services.css'
 import './styles/insights.css'
 import App from './App.jsx'
 
