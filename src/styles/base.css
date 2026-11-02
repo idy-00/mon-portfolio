@@ -126,6 +126,10 @@ main:focus { outline: none; }
 .menu__foot { display: flex; flex-wrap: wrap; justify-content: space-between; gap: 12px 32px; }
 .menu__foot a { min-height: 44px; display: inline-flex; align-items: center; }
 
+/* ── titres qui doivent tenir sur une ligne (noms de projets) : taille selon le nombre de lettres ── */
+.fit { font-size: min(var(--fit-max, 13.5rem), calc((100vw - 8vw - 32px) / (var(--len, 8) * .9))); }
+.next__t.fit { font-size: min(14rem, calc((100vw - 8vw - 32px) / (var(--len, 8) * .9))); }
+
 /* ── fin de page ── */
 .next { display: grid; gap: 18px; padding-block: var(--section) calc(40px + env(safe-area-inset-bottom, 0px)); }
 .next > a { display: block; justify-self: start; max-width: 100%; }

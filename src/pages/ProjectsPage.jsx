@@ -1,244 +1,152 @@
-import { useEffect, useMemo, useRef, useState } from 'react'
-import { AnimatePresence, motion } from 'framer-motion'
+import { useLayoutEffect, useRef, useState } from 'react'
 import { Link } from 'react-router-dom'
-import { gsap } from 'gsap'
-import { ScrollTrigger } from 'gsap/ScrollTrigger'
-import { projects } from '../data/projects'
+import { gsap, ScrollTrigger, Flip, REDUCE } from '../lib/motion'
+import { usePageMotion } from '../lib/usePageMotion'
+import { PROJECTS, FILTERS } from '../lib/site'
+import SplitChars from '../components/SplitChars'
+import Phone from '../components/Phone'
+import NextPage from '../components/NextPage'
 
-gsap.registerPlugin(ScrollTrigger)
+const FILTER_LABEL = Object.fromEntries(FILTERS.map((f) => [f.key, f.label]))
+const COUNT = Object.fromEntries(FILTERS.map((f) => [f.key, f.key === 'all' ? PROJECTS.length : PROJECTS.filter((p) => p.filter === f.key).length]))
+const ROUND = 'round 22px'
 
-const ALL_CATEGORIES = ['Tous', ...Array.from(new Set(projects.map(p => p.category)))]
-
-function IconGitHub() {
-  return (
-    <svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor">
-      <path d="M12 2C6.477 2 2 6.477 2 12c0 4.42 2.87 8.17 6.84 9.5.5.08.66-.23.66-.5v-1.69c-2.77.6-3.36-1.34-3.36-1.34-.46-1.16-1.11-1.47-1.11-1.47-.91-.62.07-.6.07-.6 1 .07 1.53 1.03 1.53 1.03.87 1.52 2.34 1.07 2.91.83.09-.65.35-1.09.63-1.34-2.22-.25-4.55-1.11-4.55-4.92 0-1.11.38-2 1.03-2.71-.1-.25-.45-1.29.1-2.64 0 0 .84-.27 2.75 1.02.79-.22 1.65-.33 2.5-.33.85 0 1.71.11 2.5.33 1.91-1.29 2.75-1.02 2.75-1.02.55 1.35.2 2.39.1 2.64.65.71 1.03 1.6 1.03 2.71 0 3.82-2.34 4.66-4.57 4.91.36.31.69.92.69 1.85V21c0 .27.16.59.67.5C19.14 20.16 22 16.42 22 12A10 10 0 0 0 12 2z"/>
-    </svg>
-  )
-}
-
-function IconLive() {
-  return (
-    <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
-      <circle cx="12" cy="12" r="3" fill="currentColor" stroke="none"/>
-      <path d="M12 2v3M12 19v3M4.22 4.22l2.12 2.12M17.66 17.66l2.12 2.12M2 12h3M19 12h3M4.22 19.78l2.12-2.12M17.66 6.34l2.12-2.12"/>
-    </svg>
-  )
-}
-
-function IconArrow() {
-  return (
-    <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
-      <path d="M5 12h14M12 5l7 7-7 7"/>
-    </svg>
-  )
-}
-
-function ProjectCard({ project, index }) {
-  const haslive = Boolean(project.live)
-  const isMobile = project.category?.includes('Mobile')
-
-  return (
-    <motion.article
-      className={`project-card${isMobile ? ' project-card--mobile' : ''}`}
-      layout
-      initial={{ opacity: 0, y: 20, scale: 0.97 }}
-      animate={{ opacity: 1, y: 0, scale: 1 }}
-      exit={{ opacity: 0, scale: 0.96 }}
-      transition={{ duration: 0.35, ease: [0.16, 1, 0.3, 1], delay: index * 0.04 }}
-      whileHover={{ y: -4 }}
-    >
-      {isMobile && project.screenshot ? (
-        /* ── Layout mobile : image à gauche, contenu à droite ── */
-        <>
-          <div className="project-card__mobile-img">
-            <img
-              src={project.screenshot}
-              alt={`Aperçu ${project.title}`}
-              loading="lazy"
-              decoding="async"
-            />
-          </div>
-          <div className="project-card__mobile-content">
-            <div className="project-card__header">
-              <span className="project-card__category">{project.category}</span>
-              <div className="project-card__header-actions">
-                {haslive && (
-                  <a href={project.live} target="_blank" rel="noreferrer"
-                    className="project-card__live-badge"
-                    onClick={e => e.stopPropagation()}>
-                    <IconLive /><span>Live</span>
-                  </a>
-                )}
-                {project.link && (
-                  <a href={project.link} target="_blank" rel="noreferrer"
-                    className="project-card__github"
-                    onClick={e => e.stopPropagation()}>
-                    <IconGitHub />
-                  </a>
-                )}
-              </div>
-            </div>
-            <h3>{project.title}</h3>
-            <p className="project-card__summary">{project.summary}</p>
-            <div className="chip-grid">
-              {project.stack.slice(0, 4).map(tech => (
-                <span key={`${project.id}-${tech}`} className="chip">{tech}</span>
-              ))}
-              {project.stack.length > 4 && (
-                <span className="chip chip--more">+{project.stack.length - 4}</span>
-              )}
-            </div>
-            <Link to={`/projets/${project.slug}`} className="project-card__cta"
-              aria-label={`Voir le détail de ${project.title}`}>
-              <span>Voir le projet</span>
-              <IconArrow />
-            </Link>
-          </div>
-        </>
-      ) : (
-        /* ── Layout standard ── */
-        <>
-          {project.screenshot && (
-            <div className="project-card__shot">
-              <img src={project.screenshot} alt={`Aperçu ${project.title}`} loading="lazy" decoding="async" />
-            </div>
-          )}
-          <div className="project-card__header">
-            <span className="project-card__category">{project.category}</span>
-            <div className="project-card__header-actions">
-              {haslive && (
-                <a href={project.live} target="_blank" rel="noreferrer"
-                  className="project-card__live-badge"
-                  onClick={e => e.stopPropagation()}>
-                  <IconLive /><span>Live</span>
-                </a>
-              )}
-              {project.link && (
-                <a href={project.link} target="_blank" rel="noreferrer"
-                  className="project-card__github"
-                  onClick={e => e.stopPropagation()}>
-                  <IconGitHub />
-                </a>
-              )}
-            </div>
-          </div>
-          <h3>{project.title}</h3>
-          <p className="project-card__summary">{project.summary}</p>
-          <div className="chip-grid">
-            {project.stack.slice(0, 5).map(tech => (
-              <span key={`${project.id}-${tech}`} className="chip">{tech}</span>
-            ))}
-            {project.stack.length > 5 && (
-              <span className="chip chip--more">+{project.stack.length - 5}</span>
-            )}
-          </div>
-          <Link to={`/projets/${project.slug}`} className="project-card__cta"
-            aria-label={`Voir le détail de ${project.title}`}>
-            <span>Voir le projet</span>
-            <IconArrow />
-          </Link>
-        </>
-      )}
-    </motion.article>
-  )
+function Status({ p }) {
+  return p.isLive
+    ? <span className="idx__st is-live"><span className="dot" aria-hidden="true" />En production</span>
+    : <span className="idx__st">Archive</span>
 }
 
 export default function ProjectsPage() {
-  const [query, setQuery] = useState('')
-  const [activeCategory, setActiveCategory] = useState('Tous')
-  const pageRef = useRef(null)
+  const ref = useRef(null)
+  const api = useRef(null)
+  const flipState = useRef(null)
+  const [filter, setFilter] = useState('all')
 
-  const filtered = useMemo(() => {
-    const q = query.trim().toLowerCase()
-    return projects.filter(p => {
-      const matchCat = activeCategory === 'Tous' || p.category === activeCategory
-      if (!matchCat) return false
-      if (!q) return true
-      return [p.title, p.category, p.summary, p.impact || '', ...p.stack].join(' ').toLowerCase().includes(q)
-    })
-  }, [query, activeCategory])
+  usePageMotion(ref, ({ q, add, revealed }) => {
+    const rows = q('.idx__row')
+    const views = Object.fromEntries(q('.view').map((v) => [v.dataset.v, v]))
+    let cur = null
+    let triggers = []
 
-  useEffect(() => {
-    const ctx = gsap.context(() => {
-      gsap.fromTo('.projects-page-header > *',
-        { opacity: 0, y: 16 },
-        { opacity: 1, y: 0, duration: 0.55, stagger: 0.08, ease: 'power2.out', delay: 0.05 }
-      )
-    }, pageRef)
-    return () => ctx.revert()
-  }, [])
+    const show = (slug) => {
+      if (slug === cur) return
+      const prev = cur ? views[cur] : null
+      const next = views[slug]
+      cur = slug
+      rows.forEach((r) => r.classList.toggle('is-on', r.dataset.slug === slug))
+      if (next) {
+        gsap.killTweensOf(next)
+        gsap.set(next, { zIndex: 2 })
+        if (REDUCE) gsap.set(next, { clipPath: `inset(0% 0% 0% 0% ${ROUND})` })
+        else {
+          gsap.fromTo(next, { clipPath: `inset(100% 0% 0% 0% ${ROUND})` }, { clipPath: `inset(0% 0% 0% 0% ${ROUND})`, duration: 0.9, ease: 'expo.out' })
+          const im = next.querySelector('img')
+          if (im) gsap.fromTo(im, { scale: 1.25 }, { scale: 1, duration: 1.2, ease: 'expo.out' })
+        }
+      }
+      if (prev) {
+        gsap.killTweensOf(prev)
+        gsap.set(prev, { zIndex: 1 })
+        if (REDUCE) gsap.set(prev, { clipPath: `inset(0% 0% 100% 0% ${ROUND})` })
+        else gsap.to(prev, { clipPath: `inset(0% 0% 100% 0% ${ROUND})`, duration: 0.9, ease: 'expo.out', delay: 0.05 })
+      }
+    }
+
+    // la ligne au centre de l'écran devient active (desktop seulement : l'aperçu est masqué sous 900 px)
+    const bind = () => {
+      triggers.forEach((t) => t.kill())
+      triggers = rows.filter((r) => !r.hidden).map((r) => ScrollTrigger.create({
+        trigger: r, start: 'top 55%', end: 'bottom 55%',
+        onToggle: (s) => { if (s.isActive) show(r.dataset.slug) },
+      }))
+    }
+    add(() => triggers.forEach((t) => t.kill()))
+
+    api.current = {
+      reset: () => {
+        cur = null
+        Object.values(views).forEach((v) => gsap.set(v, { clipPath: `inset(100% 0% 0% 0% ${ROUND})`, zIndex: 0 }))
+        const first = rows.find((r) => !r.hidden)
+        if (first) show(first.dataset.slug)
+        bind()
+      },
+    }
+    add(() => { api.current = null })
+    api.current.reset()
+
+    if (!REDUCE) {
+      gsap.set(rows.slice(0, 8), { y: 40, autoAlpha: 0 })
+      revealed(() => gsap.to(rows.slice(0, 8), { y: 0, autoAlpha: 1, duration: 1, stagger: 0.05, ease: 'expo.out', delay: 0.4, clearProps: 'transform,opacity,visibility' }))
+    }
+  })
+
+  /* Filtre : on capture l'état avant le rendu, puis Flip anime vers le nouvel état */
+  useLayoutEffect(() => {
+    const state = flipState.current
+    flipState.current = null
+    if (!state) return
+    if (!REDUCE) {
+      Flip.from(state, {
+        duration: 0.7, ease: 'expo.out', absolute: false,
+        onEnter: (els) => gsap.fromTo(els, { autoAlpha: 0, y: 30 }, { autoAlpha: 1, y: 0, duration: 0.6, stagger: 0.03 }),
+        onLeave: (els) => gsap.to(els, { autoAlpha: 0, duration: 0.25 }),
+        onComplete: () => ScrollTrigger.refresh(),
+      })
+    }
+    api.current?.reset()
+    ScrollTrigger.refresh()
+  }, [filter])
+
+  const pick = (key) => {
+    if (key === filter) return
+    flipState.current = REDUCE ? true : Flip.getState(ref.current.querySelectorAll('.idx__row'))
+    setFilter(key)
+  }
 
   return (
-    <main ref={pageRef}>
-      {/* ── Header ── */}
-      <div className="projects-page-header">
-        <div className="eyebrow eyebrow--accent">Réalisations</div>
-        <h1>Mes <em>Projets</em></h1>
-        <p>Une sélection de projets pour montrer l'impact, la clarté et la diversité.</p>
-
-        <div className="projects-controls">
-          <div className="filter-tabs" role="group" aria-label="Filtrer par catégorie">
-            {ALL_CATEGORIES.map(cat => (
-              <motion.button
-                key={cat}
-                className={`filter-tab${activeCategory === cat ? ' active' : ''}`}
-                onClick={() => setActiveCategory(cat)}
-                whileTap={{ scale: 0.95 }}
-                layout
-              >
-                {cat}
-              </motion.button>
+    <div ref={ref} className="projects">
+      <section className="p-head wrap">
+        <span className="mono" data-scramble>SN·01 · Réalisations</span>
+        <SplitChars className="h-xl" text="Projets" />
+        <div className="p-head__row">
+          <p className="lede">Une sélection de projets pour montrer l'impact, la clarté et la diversité.</p>
+          <div className="filters" role="group" aria-label="Filtrer par type">
+            {FILTERS.map((f) => (
+              <button key={f.key} type="button" aria-pressed={filter === f.key} onClick={() => pick(f.key)}>
+                {f.label}<span aria-label={`${COUNT[f.key]} projets`}>{COUNT[f.key]}</span>
+              </button>
             ))}
           </div>
-
-          <div className="search-input-wrap">
-            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-              <circle cx="11" cy="11" r="8"/><path d="m21 21-4.35-4.35"/>
-            </svg>
-            <input
-              type="search"
-              className="search-input"
-              placeholder="React, Laravel, Flutter…"
-              value={query}
-              onChange={e => setQuery(e.target.value)}
-              aria-label="Rechercher un projet"
-            />
-          </div>
         </div>
-
-        <motion.p
-          key={filtered.length}
-          initial={{ opacity: 0 }}
-          animate={{ opacity: 1 }}
-          style={{ marginTop: '0.75rem', fontSize: '0.72rem', color: 'var(--text-muted)', fontFamily: 'var(--font-mono)' }}
-        >
-          {filtered.length} projet{filtered.length !== 1 ? 's' : ''} affiché{filtered.length !== 1 ? 's' : ''}
-        </motion.p>
-      </div>
-
-      {/* ── Grid ── */}
-      <section className="projects-grid" aria-live="polite">
-        <AnimatePresence mode="popLayout">
-          {filtered.map((project, index) => (
-            <ProjectCard key={project.id} project={project} index={index} />
-          ))}
-
-          {filtered.length === 0 && (
-            <motion.div
-              className="no-results"
-              initial={{ opacity: 0 }}
-              animate={{ opacity: 1 }}
-              exit={{ opacity: 0 }}
-              key="no-results"
-            >
-              <div style={{ fontSize: '2rem', marginBottom: '0.75rem' }}>—</div>
-              <div style={{ fontWeight: 600, marginBottom: '0.4rem', fontFamily: 'var(--font-display)' }}>Aucun projet trouvé</div>
-              <div>Essaie un autre mot-clé ou réinitialise les filtres.</div>
-            </motion.div>
-          )}
-        </AnimatePresence>
       </section>
-    </main>
+
+      <section className="idx wrap" aria-label="Index des projets">
+        <ol className="idx__list">
+          {PROJECTS.map((p) => (
+            <li className="idx__row" key={p.slug} data-slug={p.slug} hidden={!(filter === 'all' || p.filter === filter)}>
+              <Link to={`/projets/${p.slug}`}>
+                <span className="idx__n">N°{p.n}</span>
+                <span className="idx__name">{p.name}<small>{p.hasSub ? `${p.sub} · ${FILTER_LABEL[p.filter]}` : p.category}</small></span>
+                <Status p={p} />
+                {p.image && <span className="idx__thumb"><img src={p.image} alt="" loading="lazy" decoding="async" /></span>}
+              </Link>
+            </li>
+          ))}
+        </ol>
+        <div className="idx__view" aria-hidden="true">
+          {PROJECTS.map((p) => (
+            <div key={p.slug} data-v={p.slug} className={`view${p.isPhone ? ' view--phone' : !p.image ? ' view--type' : ''}`}>
+              {p.isPhone && <Phone src={p.image} />}
+              {!p.isPhone && p.image && <img src={p.image} alt="" loading="lazy" decoding="async" />}
+              {!p.image && <><b>{p.n}</b><span>{p.name}</span></>}
+              {p.image && !p.isPhone && <span className="chip view__cap">N°{p.n} · {p.name}</span>}
+            </div>
+          ))}
+        </div>
+      </section>
+
+      <NextPage to="/services" kicker="Page suivante · SN·02" title="Services" />
+    </div>
   )
 }

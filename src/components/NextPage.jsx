@@ -26,7 +26,7 @@ export default function NextPage({ to, kicker, title }) {
   return (
     <section ref={ref} className="next wrap" aria-label={kicker}>
       <span className="mono">{kicker}</span>
-      <Link to={to}><span className="next__t">{title}</span></Link>
+      <Link to={to}><span className="next__t fit" style={{ '--len': Math.max(title.length, 6) }}>{title}</span></Link>
       <div className="next__bar" aria-hidden="true"><i /></div>
       <footer className="foot mono">
         <span>© {new Date().getFullYear()} Idrissa Mamadou Kane · Dakar · GMT+0</span>

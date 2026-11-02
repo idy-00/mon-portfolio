@@ -50,6 +50,7 @@ export const PROJECTS = projects.map((p, i) => {
     n: pad3(i + 1),
     name: name.trim(),
     sub: (sub || p.category || '').trim(),
+    hasSub: !!sub,
     filter: filterOf(p.category),
     host: hostOf(p.live) || hostOf(p.link) || p.slug,
     liveHost: hostOf(p.live),
