@@ -15,7 +15,8 @@ export function usePageMotion(ref, setup, deps = []) {
     if (!root) return
     const cleanups = []
     const add = (fn) => cleanups.push(fn)
-    const ctx = gsap.context(() => {
+    const ctx = gsap.context(() => {}, root)
+    ctx.add(() => {
       root.querySelectorAll('[data-scramble]').forEach((el) => {
         el.dataset.final = el.textContent
         add(() => cancelScramble(el))
@@ -28,7 +29,7 @@ export function usePageMotion(ref, setup, deps = []) {
         add,
         revealed: (fn) => add(whenRevealed(() => ctx.add(fn))),
       })
-    }, root)
+    })
     return () => {
       cleanups.forEach((f) => { try { f() } catch { /* déjà nettoyé */ } })
       ctx.revert()

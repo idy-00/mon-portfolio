@@ -129,12 +129,12 @@ main:focus { outline: none; }
 /* ── fin de page ── */
 .next { display: grid; gap: 18px; padding-block: var(--section) calc(40px + env(safe-area-inset-bottom, 0px)); }
 .next > a { display: block; justify-self: start; max-width: 100%; }
-.next__t { display: block; font-family: var(--f-display); font-weight: 800; font-size: clamp(3.4rem, 14vw, 14rem); line-height: .84; letter-spacing: -.06em; color: var(--dim); transition: color .6s var(--ease); overflow-wrap: anywhere; }
+.next__t { display: block; font-family: var(--f-display); font-weight: 800; font-size: clamp(3.4rem, 14vw, 14rem); line-height: .84; letter-spacing: -.06em; color: var(--dim); transition: color .6s var(--ease); overflow-wrap: anywhere; padding-bottom: .14em; }
 .next > a:focus-visible .next__t { color: var(--bone); }
 @media (hover: hover) { .next > a:hover .next__t { color: var(--bone); } }
 .next__bar { height: 3px; background: var(--ink-3); border-radius: 3px; overflow: hidden; }
 .next__bar i { display: block; height: 100%; width: 100%; background: var(--bone); transform-origin: left; transform: scaleX(0); }
-.foot { display: flex; flex-wrap: wrap; justify-content: space-between; gap: 10px 28px; padding-top: 56px; }
+.foot { display: flex; flex-wrap: wrap; justify-content: space-between; align-items: center; gap: 10px 28px; padding-top: 56px; }
 .foot nav { display: flex; flex-wrap: wrap; gap: 4px 24px; }
 .foot a { min-height: 44px; display: inline-flex; align-items: center; }
 

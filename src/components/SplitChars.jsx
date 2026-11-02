@@ -13,14 +13,15 @@ export default function SplitChars({ text, lines, as: Tag = 'h1', className = ''
   useLayoutEffect(() => {
     if (!play || REDUCE) return
     const el = ref.current
-    const ctx = gsap.context(() => {
+    const ctx = gsap.context(() => {}, el)
+    ctx.add(() => {
       const chars = el.querySelectorAll('.ch')
       gsap.set(chars, { yPercent: 110 })
       const cancel = whenRevealed(() => ctx.add(() => {
         gsap.to(chars, { yPercent: 0, duration: 1.2, stagger: 0.03, ease: 'expo.out', delay })
       }))
       ctx.add(() => () => cancel())
-    }, el)
+    })
     return () => ctx.revert()
   }, [label, delay, play])
 

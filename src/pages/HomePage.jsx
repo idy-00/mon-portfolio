@@ -1,340 +1,251 @@
-import { useEffect, useRef } from 'react'
+import { useRef } from 'react'
 import { Link } from 'react-router-dom'
-import { gsap } from 'gsap'
-import { ScrollTrigger } from 'gsap/ScrollTrigger'
-import { ScrambleTextPlugin } from 'gsap/ScrambleTextPlugin'
-import { projects } from '../data/projects'
+import { gsap, ScrollTrigger, REDUCE, scrambleTo } from '../lib/motion'
+import { usePageMotion } from '../lib/usePageMotion'
+import { BY_SLUG, FILTERS, STATS, pad3 } from '../lib/site'
+import SplitChars from '../components/SplitChars'
+import GlyphCanvas from '../components/GlyphCanvas'
+import Odometer from '../components/Odometer'
+import Phone from '../components/Phone'
+import NextPage from '../components/NextPage'
 
-gsap.registerPlugin(ScrollTrigger, ScrambleTextPlugin)
+const RUN = ['finora360', 'paytrack', 'jeli', 'immoclair', 'emirati-vape', 'esa'].map((s) => BY_SLUG[s]).filter(Boolean)
+const POCKET = ['sunufoot', 'yankee'].map((s) => BY_SLUG[s]).filter(Boolean)
+const FILTER_LABEL = Object.fromEntries(FILTERS.map((f) => [f.key, f.label]))
 
-/*
- * serial|dev — la page d'accueil raconte une chaîne de production.
- * Le curseur « | » du hero devient un fil qui se dessine au scroll,
- * traverse chaque chapitre (SN·01 → SN·04) et finit sa course dans
- * le prochain numéro de série : le projet du visiteur.
- */
+const SWEEP = "Depuis mes débuts, j'ai toujours voulu passer de l'usage à la création."
+const CHUNKS = SWEEP.split(' ').reduce((acc, w, i) => {
+  if (i % 3 === 0) acc.push([])
+  acc[acc.length - 1].push(w)
+  return acc
+}, []).map((g) => g.join(' '))
 
-const pad = (n, size = 2) => String(n).padStart(size, '0')
-
-const TOTAL = projects.length
-const LIVE = projects.filter(p => p.live).length
-const NEXT_SERIAL = `N°${pad(TOTAL + 1, 3)}`
-
-const RELEASES = ['finora360', 'paytrack', 'jeli']
-  .map(slug => projects.find(p => p.slug === slug))
-  .filter(Boolean)
-
-const METHOD = [
-  { cmd: 'init',  title: 'Cadrer',
-    text: "Besoin, utilisateurs, budget. Un cahier des charges clair avant la première ligne de code." },
-  { cmd: 'build', title: 'Construire',
-    text: "Web, mobile et API — React, Flutter, Laravel. Une seule personne, du modèle de données à l'animation." },
-  { cmd: 'test',  title: 'Vérifier',
-    text: "Des tests automatisés là où une erreur coûte cher : paiements, rôles, données. Finora360 en compte plus de 270." },
-  { cmd: 'ship',  title: 'Livrer',
-    text: "Mise en ligne, nom de domaine, Wave et Orange Money branchés. Puis le suivi, après la livraison." },
-]
-
-function Counter({ value }) {
-  const ref = useRef(null)
-  useEffect(() => {
-    const el = ref.current
-    if (!el) return
-    const st = ScrollTrigger.create({
-      trigger: el,
-      start: 'top 85%',
-      once: true,
-      onEnter: () => {
-        const o = { v: 0 }
-        gsap.to(o, { v: value, duration: 1.6, ease: 'power2.out', onUpdate: () => { el.textContent = Math.round(o.v) } })
-      },
-    })
-    return () => st.kill()
-  }, [value])
-  return <span ref={ref}>{value}</span>
-}
-
-function ChapterLabel({ n, children }) {
-  return (
-    <div className="sx-label">
-      <span className="sx-label__sn">SN·{pad(n)}</span>
-      <span className="sx-label__rule" aria-hidden="true" />
-      <span>{children}</span>
-    </div>
-  )
-}
-
-const Arrow = () => (
-  <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
-    <path d="M5 12h14M12 5l7 7-7 7"/>
-  </svg>
-)
+const ROW_A = ['React /', 'Laravel /', 'Flutter /', 'TypeScript /', 'PostgreSQL /']
+const ROW_B = ['Wave', 'Orange Money', 'PayDunya', 'Stripe', 'Wave', 'Orange Money', 'PayDunya', 'Stripe']
 
 export default function HomePage() {
-  const pageRef = useRef(null)
-  const titleRef = useRef(null)
+  const ref = useRef(null)
+  const sigProgress = useRef(0)
 
-  useEffect(() => {
+  usePageMotion(ref, ({ q, add, revealed }) => {
+    const media = q('.hero__media')[0]
+    const typed = q('.hero__typed')[0]
+
+    /* ── 1. Hero : la vidéo s'ouvre depuis un cadre, le nom monte, serial|dev se tape ── */
+    if (!REDUCE) {
+      gsap.set(media, { clipPath: 'inset(18% 30% 18% 30% round 28px)', scale: 1.08 })
+      gsap.set(q('.hero__meta, .hero__foot'), { autoAlpha: 0, y: 20 })
+      typed.textContent = ''
+      revealed(() => {
+        gsap.timeline({ defaults: { ease: 'expo.out' } })
+          .to(media, { clipPath: 'inset(0% 0% 0% 0% round 0px)', scale: 1, duration: 1.6 })
+          .to(q('.hero__meta, .hero__foot'), { autoAlpha: 1, y: 0, duration: 1, stagger: 0.1 }, '-=1.1')
+          .add(() => {
+            const s = 'serial|dev'
+            let i = 0
+            let id
+            const step = () => {
+              i++
+              const [a, b] = s.slice(0, i).split('|')
+              const bar = document.createElement('span')
+              bar.className = 'bar'
+              bar.textContent = '|'
+              typed.replaceChildren(a, ...(b !== undefined ? [bar, b] : []))
+              if (i < s.length) id = setTimeout(step, 70 + Math.random() * 60)
+            }
+            id = setTimeout(step, 0)
+            add(() => clearTimeout(id))
+          }, '-=.7')
+      })
+
+      // au scroll : la vidéo se replie dans un cadre arrondi, le nom remonte
+      gsap.timeline({ scrollTrigger: { trigger: q('.hero')[0], start: 'top top', end: 'bottom top', scrub: true } })
+        .fromTo(media, { clipPath: 'inset(0% 0% 0% 0% round 0px)' }, { clipPath: 'inset(6% 5% 22% 5% round 26px)', ease: 'none', immediateRender: false }, 0)
+        .fromTo(q('.hero__media video'), { scale: 1 }, { scale: 1.18, ease: 'none' }, 0)
+        .fromTo(q('.hero__name'), { yPercent: 0 }, { yPercent: -38, ease: 'none' }, 0)
+        .fromTo(q('.hero__foot, .hero__meta'), { autoAlpha: 1 }, { autoAlpha: 0, ease: 'none', duration: 0.5, immediateRender: false }, 0)
+    }
+
+    /* ── 2. Intro : sélection de texte groupe par groupe ── */
+    const sweep = q('.sweep')[0]
+    if (!REDUCE) {
+      sweep.classList.add('is-armed')
+      const tl = gsap.timeline({ scrollTrigger: { trigger: sweep, start: 'top 78%' } })
+      q('.sweep .chunk').forEach((c, i) => {
+        const st = { s: 0 }
+        const set = () => c.style.setProperty('--sx', st.s)
+        tl.to(st, { s: 1, duration: 0.42, ease: 'expo.inOut', onUpdate: set }, i * 0.16)
+          .add(() => { c.classList.add('on'); c.style.setProperty('--orig', 'right') }, i * 0.16 + 0.42)
+          .to(st, { s: 0, duration: 0.42, ease: 'expo.inOut', onUpdate: set }, i * 0.16 + 0.42)
+      })
+      gsap.from(q('.intro__cols p'), { y: 30, autoAlpha: 0, duration: 1.2, stagger: 0.12, ease: 'expo.out', scrollTrigger: { trigger: q('.intro__cols')[0], start: 'top 85%' } })
+    }
+
+    /* ── 3. Signature : les glyphes se compilent en IK (section épinglée) ── */
+    if (!REDUCE) {
+      ScrollTrigger.create({
+        trigger: q('.sig')[0], start: 'top top', end: '+=140%', pin: true, scrub: true,
+        onUpdate: (s) => { sigProgress.current = s.progress },
+      })
+    } else sigProgress.current = 1
+
+    /* ── 4. Dernières sorties : scroll horizontal épinglé (≥ 900 px) ── */
     const mm = gsap.matchMedia()
-
-    mm.add(
-      { motion: '(prefers-reduced-motion: no-preference)', reduce: '(prefers-reduced-motion: reduce)' },
-      ({ conditions }) => {
-        if (conditions.reduce) {
-          gsap.set('.sx-thread__fill', { scaleY: 1 })
-          gsap.set('.sx-node', { className: 'sx-node is-on' })
-          return
-        }
-
-        /* ── 1. Boot : la vidéo s'allume, le nom se décode, le curseur apparaît ── */
-        gsap.set(['.sx-hero__meta', '.sx-hero__sig', '.sx-hero__sub', '.sx-hero__actions', '.sx-hero__cue'], { autoAlpha: 0, y: 16 })
-        gsap.set('.sx-hero__video', { autoAlpha: 0, scale: 1.08 })
-        titleRef.current.textContent = '██████ ████'
-
-        const boot = gsap.timeline({ delay: 0.15 })
-        boot
-          .to('.sx-hero__video', { autoAlpha: 1, scale: 1, duration: 1.8, ease: 'power2.out' }, 0)
-          .to('.sx-hero__meta', { autoAlpha: 1, y: 0, duration: 0.5, ease: 'power2.out' }, 0.4)
-          .to(titleRef.current, {
-            duration: 1.3,
-            scrambleText: { text: 'IDRISSA KANE', chars: 'ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789', revealDelay: 0.3, speed: 0.45 },
-            ease: 'none',
-          }, 0.55)
-          .to('.sx-hero__sig', { autoAlpha: 1, y: 0, duration: 0.5, ease: 'power3.out' }, 1.5)
-          .to('.sx-hero__sub', { autoAlpha: 1, y: 0, duration: 0.5, ease: 'power2.out' }, 1.75)
-          .to('.sx-hero__actions', { autoAlpha: 1, y: 0, duration: 0.5, ease: 'power2.out' }, 1.9)
-          .to('.sx-hero__cue', { autoAlpha: 1, y: 0, duration: 0.5 }, 2.2)
-
-        /* ── 2. On quitte le hero : le contenu s'efface, la vidéo plonge ── */
-        gsap.to('.sx-hero__content', {
-          yPercent: -18, autoAlpha: 0, ease: 'none',
-          scrollTrigger: { trigger: '.sx-hero', start: 'top top', end: 'bottom 35%', scrub: true },
+    add(() => mm.revert())
+    mm.add({ wide: '(min-width: 900px)', reduce: '(prefers-reduced-motion: reduce)' }, (mctx) => {
+      const { wide, reduce } = mctx.conditions
+      if (reduce) return
+      const track = q('.track')[0]
+      if (wide) {
+        const dist = () => track.scrollWidth - window.innerWidth
+        const tw = gsap.to(track, {
+          x: () => -dist(), ease: 'none',
+          scrollTrigger: { trigger: q('.run')[0], start: 'top top', end: () => `+=${dist()}`, pin: true, scrub: 1, invalidateOnRefresh: true },
         })
-        gsap.to('.sx-hero__video', {
-          scale: 1.15, ease: 'none',
-          scrollTrigger: { trigger: '.sx-hero', start: 'top top', end: 'bottom top', scrub: true },
+        const now = q('.run__now')[0]
+        q('.card:not(.card--end)').forEach((card) => {
+          gsap.fromTo(card.querySelector('img'), { xPercent: -6 }, { xPercent: 6, ease: 'none', scrollTrigger: { trigger: card, containerAnimation: tw, start: 'left right', end: 'right left', scrub: true } })
+          gsap.from(card.querySelector('.shot__n'), { yPercent: 100, autoAlpha: 0, duration: 1, ease: 'expo.out', scrollTrigger: { trigger: card, containerAnimation: tw, start: 'left 75%', toggleActions: 'play none none reverse' } })
+          ScrollTrigger.create({ trigger: card, containerAnimation: tw, start: 'left center', end: 'right center', onToggle: (s) => { if (s.isActive) scrambleTo(now, card.dataset.n, 420) } })
         })
+      } else {
+        q('.card .shot').forEach((s) => gsap.from(s, { clipPath: 'inset(12% 8% 12% 8% round 18px)', ease: 'none', scrollTrigger: { trigger: s, start: 'top 95%', end: 'top 45%', scrub: true } }))
+      }
+    })
 
-        /* ── 3. Le fil : le curseur s'étire et descend avec la lecture,
-                 puis termine sa course au centre du prochain numéro ── */
-        const story = pageRef.current.querySelector('.sx-story')
-        const threadEl = story.querySelector('.sx-thread')
-        const target = story.querySelector('.sx-next__serial')
-        const fitThread = () => {
-          const s = story.getBoundingClientRect()
-          const t = target.getBoundingClientRect()
-          threadEl.style.bottom = 'auto'
-          threadEl.style.height = `${t.top - s.top}px` // le fil s'arrête au bord du numéro
-        }
-        fitThread()
-        ScrollTrigger.addEventListener('refreshInit', fitThread)
+    if (REDUCE) return
 
-        const thread = {
-          trigger: '.sx-story', start: 'top 55%',
-          endTrigger: '.sx-next__serial', end: 'top 55%',
-          scrub: 0.6,
-        }
-        // quand la tête du fil touche le numéro, il s'allume
-        ScrollTrigger.create({ trigger: '.sx-next__serial', start: 'top 55%', toggleClass: 'is-lit' })
-        gsap.fromTo('.sx-thread__fill', { scaleY: 0 }, { scaleY: 1, ease: 'none', scrollTrigger: thread })
-        gsap.fromTo('.sx-thread__head', { top: '0%' }, { top: '100%', ease: 'none', scrollTrigger: thread })
+    /* ── 5. Applis mobiles : deux vitesses ── */
+    const pocket = q('.pocket')[0]
+    const phones = q('.phones .phone')
+    gsap.fromTo(phones[0], { y: 120 }, { y: -60, ease: 'none', scrollTrigger: { trigger: pocket, start: 'top bottom', end: 'bottom top', scrub: true } })
+    gsap.fromTo(phones[1], { y: 240 }, { y: -140, rotate: -3, ease: 'none', scrollTrigger: { trigger: pocket, start: 'top bottom', end: 'bottom top', scrub: true } })
 
-        gsap.utils.toArray('.sx-node').forEach(node => {
-          ScrollTrigger.create({ trigger: node, start: 'top 55%', toggleClass: 'is-on' })
-        })
-
-        /* ── 4. Les chapitres entrent ── */
-        gsap.utils.toArray('.sx-reveal').forEach(el => {
-          gsap.from(el, {
-            autoAlpha: 0, y: 28, duration: 0.7, ease: 'power3.out',
-            scrollTrigger: { trigger: el, start: 'top 85%', once: true },
-          })
-        })
-
-        const narrow = window.matchMedia('(max-width: 860px)').matches
-        gsap.utils.toArray('.sx-release').forEach(el => {
-          const fromLeft = el.classList.contains('sx-release--left')
-          gsap.from(el.querySelector('.sx-release__shot'), {
-            clipPath: fromLeft ? 'inset(0 100% 0 0)' : 'inset(0 0 0 100%)',
-            duration: 1.1, ease: 'power4.inOut',
-            scrollTrigger: { trigger: el, start: 'top 78%', once: true },
-          })
-          gsap.from(el.querySelector('.sx-release__body'), {
-            autoAlpha: 0, duration: 0.8, ease: 'power3.out', delay: 0.25,
-            ...(narrow ? { y: 24 } : { x: fromLeft ? 30 : -30 }),
-            scrollTrigger: { trigger: el, start: 'top 78%', once: true },
-          })
-        })
-
-        gsap.from('.sx-step', {
-          autoAlpha: 0, y: 24, duration: 0.6, stagger: 0.12, ease: 'power3.out',
-          scrollTrigger: { trigger: '.sx-steps', start: 'top 80%', once: true },
-        })
-
-        /* ── 5. Arrivée : le prochain numéro se décode ── */
-        const serial = pageRef.current.querySelector('.sx-next__serial')
-        serial.textContent = 'N°---'
-        gsap.to(serial, {
-          duration: 1.4,
-          scrambleText: { text: NEXT_SERIAL, chars: '0123456789', speed: 0.5 },
-          scrollTrigger: { trigger: '.sx-next', start: 'top 70%', once: true },
-        })
-
-        return () => ScrollTrigger.removeEventListener('refreshInit', fitThread)
-      },
-      pageRef.current,
-    )
-
-    return () => mm.revert()
-  }, [])
+    /* ── 7. Marquee : accélère avec la vitesse de scroll ── */
+    const boosts = q('.mrow').map((row, i) => {
+      const dir = i === 0 ? -1 : 1
+      let x = dir < 0 ? 0 : -row.scrollWidth / 2
+      let b = 0
+      const tick = () => {
+        const w = row.scrollWidth / 2
+        x += (0.6 + b) * dir
+        b *= 0.92
+        if (dir < 0 && x <= -w) x += w
+        if (dir > 0 && x >= 0) x -= w
+        row.style.transform = `translate3d(${x}px,0,0)`
+      }
+      gsap.ticker.add(tick)
+      add(() => gsap.ticker.remove(tick))
+      return (v) => { b = Math.min(Math.abs(v) / 120, 18) }
+    })
+    ScrollTrigger.create({ trigger: q('.marquee')[0], start: 'top bottom', end: 'bottom top', onUpdate: (s) => { const v = s.getVelocity(); boosts.forEach((f) => f(v)) } })
+  })
 
   return (
-    <div ref={pageRef} className="sx">
-
-      {/* ════════ SN·00 — BOOT ════════ */}
-      <section className="sx-hero" aria-label="Introduction">
-        <video
-          className="sx-hero__video"
-          src="/videos/keyword.mp4"
-          autoPlay loop muted playsInline preload="auto"
-          aria-hidden="true"
-        />
-        <div className="sx-hero__shade" aria-hidden="true" />
-        <div className="hero-grain" aria-hidden="true" />
-
-        <div className="sx-hero__content">
-          <p className="sx-hero__meta">
-            <span className="sx-rec" aria-hidden="true" /> SN·00 — Dakar, Sénégal
-          </p>
-          <h1 ref={titleRef} className="sx-hero__title" aria-label="Idrissa Kane">IDRISSA KANE</h1>
-          <p className="sx-hero__sig" aria-label="serial dev">
-            <span>serial</span><span className="sx-caret" aria-hidden="true">|</span><span>dev</span>
-          </p>
-          <p className="sx-hero__sub">
-            Développeur full stack. Web, mobile, paiement mobile money&nbsp;— je conçois,
-            je code et je mets en ligne, projet après projet.
-          </p>
-          <div className="sx-hero__actions">
-            <Link to="/projets" className="btn btn--primary">Voir la série <Arrow /></Link>
-            <Link to="/contact" className="btn btn--ghost">Démarrer un projet</Link>
-          </div>
+    <div ref={ref} className="home">
+      {/* 1 ── Hero */}
+      <section className="hero" aria-label="Idrissa Kane">
+        <div className="hero__media grain">
+          <video src="/videos/keyword.mp4" autoPlay={!REDUCE} muted loop playsInline preload="auto" aria-hidden="true" />
         </div>
-
-        <div className="sx-hero__cue" aria-hidden="true">
-          <span>scroll</span>
-          <span className="sx-hero__cue-line" />
+        <div className="hero__body wrap">
+          <div className="hero__meta mono">
+            <span><span className="dot" aria-hidden="true" />Disponible pour de nouveaux projets</span>
+            <span>SN·00 · Dakar, Sénégal</span>
+          </div>
+          <SplitChars className="h-xl hero__name" lines={['Idrissa', 'Kane']} delay={0.35} />
+          <div className="hero__foot">
+            <p className="hero__tag" aria-label="serial|dev">
+              <span className="hero__typed" aria-hidden="true">serial<span className="bar">|</span>dev</span>
+              <span className="caret" aria-hidden="true" />
+            </p>
+            <p className="lede hero__lede">Développeur full stack. Web, mobile, paiement mobile money. Je conçois, je code et je mets en ligne, projet après projet.</p>
+          </div>
         </div>
       </section>
 
-      {/* ════════ La pile ════════ */}
-      <div className="marquee-section" aria-hidden="true">
-        <div className="marquee-track">
-          {['React', 'Flutter', 'Laravel', 'PostgreSQL', 'MySQL', 'PHP', 'Dart', 'TypeScript', 'Wave', 'Orange Money',
-            'React', 'Flutter', 'Laravel', 'PostgreSQL', 'MySQL', 'PHP', 'Dart', 'TypeScript', 'Wave', 'Orange Money',
-          ].map((item, i) => (
-            <span key={i} className="marquee-item">{item}<span className="marquee-sep"> | </span></span>
+      {/* 2 ── Intro */}
+      <section className="intro wrap" aria-label="Présentation">
+        <span className="mono" data-scramble>SN·00 · Depuis mes débuts</span>
+        <p className="sweep" aria-label={SWEEP}>
+          {CHUNKS.map((c, i) => <span className="chunk" key={i} aria-hidden="true"><span>{c}</span></span>)}
+        </p>
+        <div className="intro__cols">
+          <p>Aujourd'hui, je réalise des apps web et mobiles de bout en bout. Mon moteur : résoudre des besoins réels avec une expérience claire.</p>
+          <p>Laravel et React côté web, Flutter côté mobile. Wave, Orange Money, PayDunya et Stripe pour encaisser.</p>
+        </div>
+      </section>
+
+      {/* 3 ── Signature IK */}
+      <section className="sig" aria-label="Signature IK">
+        <GlyphCanvas mode="compile" text="IK" progressRef={sigProgress} />
+        <div className="sig__top wrap mono" data-scramble>{`Signature · ${STATS.total} projets compilés`}</div>
+        <div className="sig__cap wrap">
+          <p className="h-m">Chaque caractère vient d'un projet livré.</p>
+          <span className="mono" aria-hidden="true">{'{ } </> ; $ → IK'}</span>
+        </div>
+      </section>
+
+      {/* 4 ── Dernières sorties */}
+      <section className="run" aria-label="Dernières sorties">
+        <div className="run__head wrap">
+          <h2 className="h-l">Dernières sorties</h2>
+          <p className="run__count" aria-hidden="true">N°<b className="run__now">{RUN[0]?.n}</b> / {pad3(STATS.total)}</p>
+        </div>
+        <div className="track wrap">
+          {RUN.map((p) => (
+            <Link className="card" to={`/projets/${p.slug}`} key={p.slug} data-n={p.n}>
+              <div className="shot">
+                <img src={p.image} alt={`Capture de ${p.name}`} loading="lazy" decoding="async" />
+                <span className="shot__n" aria-hidden="true">{p.n}</span>
+                <span className="chip">{p.isLive ? <><span className="dot" aria-hidden="true" />En production</> : 'Archive'}</span>
+              </div>
+              <div className="card__row">
+                <h3 className="card__name">{p.name}</h3>
+                <span className="mono">{FILTER_LABEL[p.filter]} · {p.stack.slice(0, 2).join(' · ')}</span>
+              </div>
+            </Link>
           ))}
+          <Link className="card card--end" to="/projets">
+            <strong>Les {STATS.total}<br /><span>numéros →</span></strong>
+          </Link>
         </div>
-      </div>
+      </section>
 
-      {/* ════════ Le fil ════════ */}
-      <div className="sx-story">
-        <div className="sx-thread" aria-hidden="true">
-          <span className="sx-thread__fill" />
-          <span className="sx-thread__head" />
-        </div>
-
-        {/* SN·01 — LA SÉRIE */}
-        <section className="sx-chapter" aria-labelledby="sx-serie">
-          <span className="sx-node" aria-hidden="true" />
-          <ChapterLabel n={1}>La série</ChapterLabel>
-          <h2 id="sx-serie" className="sx-statement sx-reveal">
-            <Counter value={TOTAL} /> projets sortis de l'atelier.{' '}
-            <em><Counter value={LIVE} /> sont en ligne</em> en ce moment.
-            Un seul développeur, du cahier des charges à la mise en production.
-          </h2>
-          <dl className="sx-figures sx-reveal">
-            <div><dt>Projets</dt><dd>{pad(TOTAL)}</dd></div>
-            <div><dt>En ligne</dt><dd>{pad(LIVE)}</dd></div>
-            <div><dt>Années</dt><dd>02</dd></div>
-            <div><dt>Base</dt><dd>DKR</dd></div>
-          </dl>
-        </section>
-
-        {/* SN·02 — DERNIÈRES SORTIES */}
-        <section className="sx-chapter" aria-labelledby="sx-sorties">
-          <span className="sx-node" aria-hidden="true" />
-          <ChapterLabel n={2}>Dernières sorties</ChapterLabel>
-          <h2 id="sx-sorties" className="sx-title sx-reveal">Les plus gros numéros</h2>
-
-          <div className="sx-releases">
-            {RELEASES.map((p, i) => (
-              <Link
-                key={p.slug}
-                to={`/projets/${p.slug}`}
-                className={`sx-release ${i % 2 === 0 ? 'sx-release--left' : 'sx-release--right'}`}
-               
-              >
-                <div className="sx-release__shot">
-                  {p.screenshot && <img src={p.screenshot} alt={`Aperçu de ${p.title}`} loading="lazy" decoding="async" />}
-                  <span className="sx-corner sx-corner--tl" aria-hidden="true" />
-                  <span className="sx-corner sx-corner--br" aria-hidden="true" />
-                </div>
-                <div className="sx-release__body">
-                  <span className="sx-release__sn">N°{pad(projects.indexOf(p) + 1, 3)} · {p.year}</span>
-                  <h3 className="sx-release__title">{p.title}</h3>
-                  <p className="sx-release__text">{p.summary}</p>
-                  <div className="sx-release__tags">
-                    {p.stack.slice(0, 4).map(t => <span key={t} className="chip">{t}</span>)}
-                  </div>
-                  <span className="sx-release__cta">
-                    {p.live ? <><span className="sx-live" aria-hidden="true" /> En ligne</> : 'Voir la fiche'} <Arrow />
-                  </span>
-                </div>
+      {/* 5 ── Applis mobiles */}
+      <section className="pocket wrap" aria-label="Applications mobiles">
+        <div>
+          <p className="mono pocket__kicker" data-scramble>Applis mobiles · Flutter</p>
+          <h2 className="h-l">Une codebase.<br /><span>Deux stores.</span></h2>
+          <p className="lede pocket__lede">iOS et Android avec Flutter. Notifications push FCM, GPS, paiement mobile money, du MVP au produit fini.</p>
+          <div className="pocket__list">
+            {POCKET.map((p) => (
+              <Link to={`/projets/${p.slug}`} key={p.slug}>
+                <strong>{p.name}</strong>
+                <span className="mono">N°{p.n} · {p.sub}</span>
               </Link>
             ))}
           </div>
+        </div>
+        <div className="phones">
+          {POCKET.map((p) => <Phone key={p.slug} src={p.image} alt={`Écran de ${p.name}`} />)}
+        </div>
+      </section>
 
-          <div className="sx-center sx-reveal">
-            <Link to="/projets" className="btn btn--ghost">Voir les {TOTAL} de la série <Arrow /></Link>
-          </div>
-        </section>
+      {/* 6 ── Chiffres */}
+      <section className="odo-row wrap" aria-label="Chiffres">
+        <div><Odometer value={STATS.total} /><span className="mono">Projets dans la série</span></div>
+        <div><Odometer value={STATS.live} /><span className="mono">En production</span></div>
+        <div><Odometer value={STATS.years} /><span className="mono">Ans d'expérience</span></div>
+      </section>
 
-        {/* SN·03 — LA MÉTHODE */}
-        <section className="sx-chapter" aria-labelledby="sx-methode">
-          <span className="sx-node" aria-hidden="true" />
-          <ChapterLabel n={3}>La méthode</ChapterLabel>
-          <h2 id="sx-methode" className="sx-title sx-reveal">Du clavier à la production</h2>
-          <ol className="sx-steps">
-            {METHOD.map((s, i) => (
-              <li key={s.cmd} className="sx-step">
-                <span className="sx-step__cmd"><span aria-hidden="true">$ </span>{s.cmd}</span>
-                <span className="sx-step__n" aria-hidden="true">{pad(i + 1)}</span>
-                <h3 className="sx-step__title">{s.title}</h3>
-                <p className="sx-step__text">{s.text}</p>
-              </li>
-            ))}
-          </ol>
-          <div className="sx-center sx-reveal">
-            <Link to="/a-propos" className="btn btn--ghost">Qui est derrière <Arrow /></Link>
-          </div>
-        </section>
+      {/* 7 ── Stack */}
+      <section className="marquee" aria-label="Stack : React, Laravel, Flutter, TypeScript, PostgreSQL. Paiement : Wave, Orange Money, PayDunya, Stripe.">
+        <div className="mrow" aria-hidden="true">{[...ROW_A, ...ROW_A].map((t, i) => <span key={i}>{t}</span>)}</div>
+        <div className="mrow mrow--b" aria-hidden="true">{[...ROW_B, ...ROW_B].map((t, i) => <span key={i}>{t}</span>)}</div>
+      </section>
 
-        {/* SN·04 — PROCHAIN NUMÉRO : le fil finit sa course ici */}
-        <section className="sx-chapter sx-next" aria-labelledby="sx-next">
-          <span className="sx-node sx-node--end" aria-hidden="true" />
-          <ChapterLabel n={4}>Prochain numéro</ChapterLabel>
-          <p className="sx-next__serial" aria-hidden="true">{NEXT_SERIAL}</p>
-          <h2 id="sx-next" className="sx-next__title sx-reveal">
-            Le prochain de la série, c'est votre projet<span className="sx-caret" aria-hidden="true">|</span>
-          </h2>
-          <p className="sx-next__text sx-reveal">Premier échange gratuit. Décrivez votre idée — je vous réponds sous 24&nbsp;h.</p>
-          <div className="btn-row sx-reveal">
-            <Link to="/contact" className="btn btn--primary">Démarrer un projet <Arrow /></Link>
-            <a href="/CV_IDRISSA_M_KANE.pdf" target="_blank" rel="noopener noreferrer" className="btn btn--ghost">Télécharger le CV</a>
-          </div>
-        </section>
-      </div>
+      <NextPage to="/projets" kicker="Page suivante · SN·01" title="Projets" />
     </div>
   )
 }
