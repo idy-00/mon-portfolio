@@ -2,8 +2,20 @@ import { chromium } from '@playwright/test'
 import sharp from 'sharp'
 import fs from 'fs'
 import path from 'path'
+import os from 'os'
 import { fileURLToPath } from 'url'
 import { log } from './logger.js'
+
+// sharp ne supporte pas les paths avec espaces sur Windows — on écrit dans %TEMP% puis on copie
+function safeSharpWrite(pipeline, destPath) {
+  const hasSpcae = destPath.includes(' ')
+  if (!hasSpcae) return pipeline.toFile(destPath)
+  const tmp = path.join(os.tmpdir(), `sharp-tmp-${Date.now()}-${Math.random().toString(36).slice(2)}.webp`)
+  return pipeline.toFile(tmp).then(() => {
+    fs.copyFileSync(tmp, destPath)
+    try { fs.unlinkSync(tmp) } catch {}
+  })
+}
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url))
 const SCREENSHOTS_DIR = path.join(__dirname, '..', 'generated', 'screenshots')
@@ -25,9 +37,7 @@ async function screenshotUrl(page, url, outputPath, viewport) {
     await page.goto(url, { waitUntil: 'networkidle', timeout: 20000 })
     await page.waitForTimeout(1500)
     const raw = await page.screenshot({ fullPage: false, type: 'png' })
-    await sharp(raw)
-      .webp({ quality: 82 })
-      .toFile(outputPath)
+    await safeSharpWrite(sharp(raw).webp({ quality: 82 }), outputPath)
     log.shotOk(`  ${viewport.name}: ${outputPath}`)
     return true
   } catch (err) {
@@ -42,17 +52,12 @@ async function generatePlaceholder(projectName, outputPath) {
     <text x="960" y="520" font-family="monospace" font-size="48" fill="#333" text-anchor="middle">${projectName}</text>
     <text x="960" y="580" font-family="monospace" font-size="24" fill="#222" text-anchor="middle">No live URL</text>
   </svg>`
-  await sharp(Buffer.from(svg))
-    .webp({ quality: 70 })
-    .toFile(outputPath)
+  await safeSharpWrite(sharp(Buffer.from(svg)).webp({ quality: 70 }), outputPath)
 }
 
 async function generateThumbnail(inputPath, thumbnailPath) {
   try {
-    await sharp(inputPath)
-      .resize(640, 360, { fit: 'cover' })
-      .webp({ quality: 75 })
-      .toFile(thumbnailPath)
+    await safeSharpWrite(sharp(inputPath).resize(640, 360, { fit: 'cover' }).webp({ quality: 75 }), thumbnailPath)
   } catch {}
 }
 

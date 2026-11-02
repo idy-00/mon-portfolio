@@ -43,6 +43,7 @@ export async function generateProjectsFile(generatedData) {
   // Dynamic import of base projects
   const baseModule = await import(`file://${basePath}?t=${Date.now()}`)
   const baseProjects = baseModule.manualProjects
+  const hiddenRepos = new Set((baseModule.hiddenRepos || []).map(r => r.toLowerCase()))
 
   // Merge live URLs and screenshots into manual projects
   const merged = baseProjects.map(project => {
@@ -68,7 +69,7 @@ export async function generateProjectsFile(generatedData) {
     .filter(p => {
       const repoName = (p.meta?.repoName || p.id?.replace('gh-', '') || '').toLowerCase()
       const title = (p.title || '').toLowerCase()
-      return !manualRepoNames.has(repoName) && !manualTitles.has(title) && p.links?.live
+      return !manualRepoNames.has(repoName) && !hiddenRepos.has(repoName) && !manualTitles.has(title) && p.links?.live
     })
     .map((p, i) => {
       const repoName = (p.meta?.repoName || p.id?.replace('gh-', '') || '').toLowerCase()
@@ -96,6 +97,10 @@ export async function generateProjectsFile(generatedData) {
         source: 'auto',
       }
     })
+
+  const order = baseModule.displayOrder || []
+  const rank = p => (order.includes(p.slug) ? order.indexOf(p.slug) : order.length)
+  merged.sort((a, b) => rank(a) - rank(b)) // tri stable : le reste garde l'ordre du tableau
 
   const allProjects = [...merged, ...autoProjects]
 

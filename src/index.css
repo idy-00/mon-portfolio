@@ -12,9 +12,10 @@
   --bg-4:        #1a1a1a;
 
   --text:        #ffffff;
-  --text-sub:    #a0a0a0;
-  --text-muted:  #555555;
-  --text-dim:    #2a2a2a;
+  /* Tous ≥ 4.5:1 sur #000 → #111 (WCAG AA) */
+  --text-sub:    #b8b8b8;
+  --text-muted:  #959595;
+  --text-dim:    #808080;
 
   --accent:      #ffffff;
   --accent-fg:   #000000;
@@ -156,7 +157,7 @@ strong { font-weight: 600; color: var(--text); }
   border-bottom: 1px solid transparent;
 }
 .topbar.scrolled {
-  background: rgba(0,0,0,0.85);
+  background: #000; /* opaque : aucun texte ne doit transparaître derrière le menu */
   backdrop-filter: blur(16px);
   -webkit-backdrop-filter: blur(16px);
   border-bottom-color: var(--line);
@@ -901,7 +902,7 @@ strong { font-weight: 600; color: var(--text); }
   border-radius: var(--r-sm);
 }
 .dakar-clock__label {
-  color: rgba(255,255,255,0.45);
+  color: rgba(255,255,255,0.62);
   font-size: 0.55rem;
   letter-spacing: 0.14em;
 }

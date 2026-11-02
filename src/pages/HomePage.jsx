@@ -2,17 +2,41 @@ import { useEffect, useRef } from 'react'
 import { Link } from 'react-router-dom'
 import { gsap } from 'gsap'
 import { ScrollTrigger } from 'gsap/ScrollTrigger'
-import { SplitText } from 'gsap/SplitText'
 import { ScrambleTextPlugin } from 'gsap/ScrambleTextPlugin'
 import { projects } from '../data/projects'
 
-gsap.registerPlugin(ScrollTrigger, SplitText, ScrambleTextPlugin)
+gsap.registerPlugin(ScrollTrigger, ScrambleTextPlugin)
 
-/* Animated counter */
-function AnimatedCounter({ target, suffix = '', duration = 1.8 }) {
+/*
+ * serial|dev — la page d'accueil raconte une chaîne de production.
+ * Le curseur « | » du hero devient un fil qui se dessine au scroll,
+ * traverse chaque chapitre (SN·01 → SN·04) et finit sa course dans
+ * le prochain numéro de série : le projet du visiteur.
+ */
+
+const pad = (n, size = 2) => String(n).padStart(size, '0')
+
+const TOTAL = projects.length
+const LIVE = projects.filter(p => p.live).length
+const NEXT_SERIAL = `N°${pad(TOTAL + 1, 3)}`
+
+const RELEASES = ['finora360', 'paytrack', 'jeli']
+  .map(slug => projects.find(p => p.slug === slug))
+  .filter(Boolean)
+
+const METHOD = [
+  { cmd: 'init',  title: 'Cadrer',
+    text: "Besoin, utilisateurs, budget. Un cahier des charges clair avant la première ligne de code." },
+  { cmd: 'build', title: 'Construire',
+    text: "Web, mobile et API — React, Flutter, Laravel. Une seule personne, du modèle de données à l'animation." },
+  { cmd: 'test',  title: 'Vérifier',
+    text: "Des tests automatisés là où une erreur coûte cher : paiements, rôles, données. Finora360 en compte plus de 270." },
+  { cmd: 'ship',  title: 'Livrer',
+    text: "Mise en ligne, nom de domaine, Wave et Orange Money branchés. Puis le suivi, après la livraison." },
+]
+
+function Counter({ value }) {
   const ref = useRef(null)
-  const triggered = useRef(false)
-
   useEffect(() => {
     const el = ref.current
     if (!el) return
@@ -21,323 +45,296 @@ function AnimatedCounter({ target, suffix = '', duration = 1.8 }) {
       start: 'top 85%',
       once: true,
       onEnter: () => {
-        if (triggered.current) return
-        triggered.current = true
-        const num = parseFloat(target)
-        gsap.fromTo({ val: 0 }, { val: num }, {
-          duration,
-          ease: 'power2.out',
-          onUpdate: function() {
-            el.textContent = Math.round(this.targets()[0].val) + suffix
-          },
-        })
+        const o = { v: 0 }
+        gsap.to(o, { v: value, duration: 1.6, ease: 'power2.out', onUpdate: () => { el.textContent = Math.round(o.v) } })
       },
     })
     return () => st.kill()
-  }, [target, suffix, duration])
-
-  return <span ref={ref}>0{suffix}</span>
+  }, [value])
+  return <span ref={ref}>{value}</span>
 }
 
-const FEATURED = [
-  projects.find(p => p.slug === 'yankee'),
-  projects.find(p => p.slug === 'jeli'),
-  projects.find(p => p.slug === 'certifio'),
-].filter(Boolean)
+function ChapterLabel({ n, children }) {
+  return (
+    <div className="sx-label">
+      <span className="sx-label__sn">SN·{pad(n)}</span>
+      <span className="sx-label__rule" aria-hidden="true" />
+      <span>{children}</span>
+    </div>
+  )
+}
+
+const Arrow = () => (
+  <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
+    <path d="M5 12h14M12 5l7 7-7 7"/>
+  </svg>
+)
 
 export default function HomePage() {
-  const videoRef     = useRef(null)
-  const titleRef     = useRef(null)
-  const subtitleRef  = useRef(null)
-  const taglineRef   = useRef(null)
-  const actionsRef   = useRef(null)
-  const scrollRef    = useRef(null)
-  const pageRef      = useRef(null)
+  const pageRef = useRef(null)
+  const titleRef = useRef(null)
 
   useEffect(() => {
-    const ctx = gsap.context(() => {
+    const mm = gsap.matchMedia()
 
-      /* ── Initial states ── */
-      gsap.set(videoRef.current,    { opacity: 0 })
-      gsap.set(subtitleRef.current, { opacity: 0, y: 20 })
-      gsap.set(taglineRef.current,  { opacity: 0, y: 14 })
-      gsap.set(actionsRef.current,  { opacity: 0, y: 20 })
-      gsap.set(scrollRef.current,   { opacity: 0 })
-      gsap.set('.hero-bar-top',     { scaleX: 0, transformOrigin: 'left center' })
-      gsap.set('.hero-bar-bottom',  { scaleX: 0, transformOrigin: 'right center' })
-      gsap.set('.hero-letterbox-top',    { y: '-100%' })
-      gsap.set('.hero-letterbox-bottom', { y: '100%' })
+    mm.add(
+      { motion: '(prefers-reduced-motion: no-preference)', reduce: '(prefers-reduced-motion: reduce)' },
+      ({ conditions }) => {
+        if (conditions.reduce) {
+          gsap.set('.sx-thread__fill', { scaleY: 1 })
+          gsap.set('.sx-node', { className: 'sx-node is-on' })
+          return
+        }
 
-      /* ── Title ScrambleText ── */
-      gsap.set(titleRef.current, { opacity: 1 })
-      titleRef.current.textContent = '████████ ████'
+        /* ── 1. Boot : la vidéo s'allume, le nom se décode, le curseur apparaît ── */
+        gsap.set(['.sx-hero__meta', '.sx-hero__sig', '.sx-hero__sub', '.sx-hero__actions', '.sx-hero__cue'], { autoAlpha: 0, y: 16 })
+        gsap.set('.sx-hero__video', { autoAlpha: 0, scale: 1.08 })
+        titleRef.current.textContent = '██████ ████'
 
-      const tl = gsap.timeline({ delay: 0.2 })
+        const boot = gsap.timeline({ delay: 0.15 })
+        boot
+          .to('.sx-hero__video', { autoAlpha: 1, scale: 1, duration: 1.8, ease: 'power2.out' }, 0)
+          .to('.sx-hero__meta', { autoAlpha: 1, y: 0, duration: 0.5, ease: 'power2.out' }, 0.4)
+          .to(titleRef.current, {
+            duration: 1.3,
+            scrambleText: { text: 'IDRISSA KANE', chars: 'ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789', revealDelay: 0.3, speed: 0.45 },
+            ease: 'none',
+          }, 0.55)
+          .to('.sx-hero__sig', { autoAlpha: 1, y: 0, duration: 0.5, ease: 'power3.out' }, 1.5)
+          .to('.sx-hero__sub', { autoAlpha: 1, y: 0, duration: 0.5, ease: 'power2.out' }, 1.75)
+          .to('.sx-hero__actions', { autoAlpha: 1, y: 0, duration: 0.5, ease: 'power2.out' }, 1.9)
+          .to('.sx-hero__cue', { autoAlpha: 1, y: 0, duration: 0.5 }, 2.2)
 
-      /* Letterbox cinéma */
-      tl.to('.hero-letterbox-top',    { y: '0%', duration: 0.7, ease: 'power3.out' }, 0)
-      tl.to('.hero-letterbox-bottom', { y: '0%', duration: 0.7, ease: 'power3.out' }, 0)
+        /* ── 2. On quitte le hero : le contenu s'efface, la vidéo plonge ── */
+        gsap.to('.sx-hero__content', {
+          yPercent: -18, autoAlpha: 0, ease: 'none',
+          scrollTrigger: { trigger: '.sx-hero', start: 'top top', end: 'bottom 35%', scrub: true },
+        })
+        gsap.to('.sx-hero__video', {
+          scale: 1.15, ease: 'none',
+          scrollTrigger: { trigger: '.sx-hero', start: 'top top', end: 'bottom top', scrub: true },
+        })
 
-      /* Vidéo fade in */
-      tl.to(videoRef.current, { opacity: 1, duration: 1.4, ease: 'power2.inOut' }, 0.3)
+        /* ── 3. Le fil : le curseur s'étire et descend avec la lecture,
+                 puis termine sa course au centre du prochain numéro ── */
+        const story = pageRef.current.querySelector('.sx-story')
+        const threadEl = story.querySelector('.sx-thread')
+        const target = story.querySelector('.sx-next__serial')
+        const fitThread = () => {
+          const s = story.getBoundingClientRect()
+          const t = target.getBoundingClientRect()
+          threadEl.style.bottom = 'auto'
+          threadEl.style.height = `${t.top - s.top}px` // le fil s'arrête au bord du numéro
+        }
+        fitThread()
+        ScrollTrigger.addEventListener('refreshInit', fitThread)
 
-      /* Barres horizontales */
-      tl.to('.hero-bar-top',    { scaleX: 1, duration: 0.8, ease: 'power3.inOut' }, 0.5)
-      tl.to('.hero-bar-bottom', { scaleX: 1, duration: 0.8, ease: 'power3.inOut' }, 0.65)
+        const thread = {
+          trigger: '.sx-story', start: 'top 55%',
+          endTrigger: '.sx-next__serial', end: 'top 55%',
+          scrub: 0.6,
+        }
+        // quand la tête du fil touche le numéro, il s'allume
+        ScrollTrigger.create({ trigger: '.sx-next__serial', start: 'top 55%', toggleClass: 'is-lit' })
+        gsap.fromTo('.sx-thread__fill', { scaleY: 0 }, { scaleY: 1, ease: 'none', scrollTrigger: thread })
+        gsap.fromTo('.sx-thread__head', { top: '0%' }, { top: '100%', ease: 'none', scrollTrigger: thread })
 
-      /* ScrambleText sur le titre */
-      tl.to(titleRef.current, {
-        duration: 1.4,
-        scrambleText: {
-          text: 'IDRISSA KANE',
-          chars: 'ABCDEFGHIJKLMNOPQRSTUVWXYZ',
-          revealDelay: 0.4,
-          speed: 0.4,
-        },
-        ease: 'none',
-      }, 0.9)
+        gsap.utils.toArray('.sx-node').forEach(node => {
+          ScrollTrigger.create({ trigger: node, start: 'top 55%', toggleClass: 'is-on' })
+        })
 
-      /* Subtitle + tagline + actions */
-      tl.to(subtitleRef.current, { opacity: 1, y: 0, duration: 0.5, ease: 'power2.out' }, 1.8)
-      tl.to(taglineRef.current,  { opacity: 1, y: 0, duration: 0.45, ease: 'power2.out' }, 1.95)
-      tl.to(actionsRef.current,  { opacity: 1, y: 0, duration: 0.45, ease: 'power2.out' }, 2.1)
-      tl.to(scrollRef.current,   { opacity: 1, duration: 0.4 }, 2.4)
+        /* ── 4. Les chapitres entrent ── */
+        gsap.utils.toArray('.sx-reveal').forEach(el => {
+          gsap.from(el, {
+            autoAlpha: 0, y: 28, duration: 0.7, ease: 'power3.out',
+            scrollTrigger: { trigger: el, start: 'top 85%', once: true },
+          })
+        })
 
-      /* ── Glitch périodique sur le titre ── */
-      const glitchLoop = gsap.timeline({ repeat: -1, repeatDelay: 6, delay: 4 })
-      glitchLoop
-        .to(titleRef.current, { skewX: 4, x: -4, duration: 0.06, ease: 'none' })
-        .to(titleRef.current, { skewX: -2, x: 3, duration: 0.06, ease: 'none' })
-        .to(titleRef.current, { skewX: 0, x: 0, duration: 0.06, ease: 'none' })
-        .to(titleRef.current, { opacity: 0.8, duration: 0.04 }, '+=0.1')
-        .to(titleRef.current, { opacity: 1, duration: 0.04 })
+        const narrow = window.matchMedia('(max-width: 860px)').matches
+        gsap.utils.toArray('.sx-release').forEach(el => {
+          const fromLeft = el.classList.contains('sx-release--left')
+          gsap.from(el.querySelector('.sx-release__shot'), {
+            clipPath: fromLeft ? 'inset(0 100% 0 0)' : 'inset(0 0 0 100%)',
+            duration: 1.1, ease: 'power4.inOut',
+            scrollTrigger: { trigger: el, start: 'top 78%', once: true },
+          })
+          gsap.from(el.querySelector('.sx-release__body'), {
+            autoAlpha: 0, duration: 0.8, ease: 'power3.out', delay: 0.25,
+            ...(narrow ? { y: 24 } : { x: fromLeft ? 30 : -30 }),
+            scrollTrigger: { trigger: el, start: 'top 78%', once: true },
+          })
+        })
 
-      /* ── Scroll reveals ── */
-      ScrollTrigger.batch('.gsap-reveal', {
-        onEnter: els => gsap.to(els, {
-          opacity: 1, y: 0,
-          duration: 0.6, stagger: 0.1, ease: 'power3.out',
-        }),
-        start: 'top 83%', once: true,
-      })
+        gsap.from('.sx-step', {
+          autoAlpha: 0, y: 24, duration: 0.6, stagger: 0.12, ease: 'power3.out',
+          scrollTrigger: { trigger: '.sx-steps', start: 'top 80%', once: true },
+        })
 
-      gsap.fromTo('.featured-item',
-        { opacity: 0, y: 22 },
-        { opacity: 1, y: 0, duration: 0.5, stagger: 0.09, ease: 'power2.out',
-          scrollTrigger: { trigger: '.featured-list', start: 'top 80%', once: true } }
-      )
-      gsap.fromTo('.about-teaser__card',
-        { opacity: 0, y: 18, scale: 0.97 },
-        { opacity: 1, y: 0, scale: 1, duration: 0.48, stagger: 0.07, ease: 'power2.out',
-          scrollTrigger: { trigger: '.about-teaser__grid', start: 'top 83%', once: true } }
-      )
-      gsap.fromTo('.stat-item',
-        { opacity: 0, y: 14 },
-        { opacity: 1, y: 0, duration: 0.45, stagger: 0.07, ease: 'power2.out',
-          scrollTrigger: { trigger: '.stats-grid', start: 'top 83%', once: true } }
-      )
+        /* ── 5. Arrivée : le prochain numéro se décode ── */
+        const serial = pageRef.current.querySelector('.sx-next__serial')
+        serial.textContent = 'N°---'
+        gsap.to(serial, {
+          duration: 1.4,
+          scrambleText: { text: NEXT_SERIAL, chars: '0123456789', speed: 0.5 },
+          scrollTrigger: { trigger: '.sx-next', start: 'top 70%', once: true },
+        })
 
-    }, pageRef)
+        return () => ScrollTrigger.removeEventListener('refreshInit', fitThread)
+      },
+      pageRef.current,
+    )
 
-    return () => ctx.revert()
+    return () => mm.revert()
   }, [])
 
   return (
-    <div ref={pageRef}>
+    <div ref={pageRef} className="sx">
 
-      {/* ════════════ HERO ════════════ */}
-      <section className="hero" aria-label="Introduction">
-
-        {/* Film grain */}
+      {/* ════════ SN·00 — BOOT ════════ */}
+      <section className="sx-hero" aria-label="Introduction">
+        <video
+          className="sx-hero__video"
+          src="/videos/keyword.mp4"
+          autoPlay loop muted playsInline preload="auto"
+          aria-hidden="true"
+        />
+        <div className="sx-hero__shade" aria-hidden="true" />
         <div className="hero-grain" aria-hidden="true" />
 
-        {/* Letterbox cinéma */}
-        <div className="hero-letterbox-top"  aria-hidden="true" />
-        <div className="hero-letterbox-bottom" aria-hidden="true" />
-
-        {/* Vidéo background — verticale CSS-rotated */}
-        <div className="hero-video-wrap" aria-hidden="true">
-          <video
-            ref={videoRef}
-            className="hero-video"
-            src="/videos/keyword.mp4"
-            autoPlay
-            loop
-            muted
-            playsInline
-            preload="auto"
-          />
-        </div>
-
-        {/* Overlay sombre */}
-        <div className="hero-overlay" aria-hidden="true" />
-
-        {/* Content */}
-        <div className="hero__content">
-
-          {/* Barres horizontales décoratives */}
-          <div className="hero-bar hero-bar-top"    aria-hidden="true" />
-          <div className="hero-bar hero-bar-bottom" aria-hidden="true" />
-
-          {/* Titre principal */}
-          <h1
-            ref={titleRef}
-            className="hero__title"
-            aria-label="Idrissa Kane"
-          >
-            IDRISSA KANE
-          </h1>
-
-          {/* Subtitle */}
-          <p ref={subtitleRef} className="hero__subtitle">
-            Développeur Full Stack
+        <div className="sx-hero__content">
+          <p className="sx-hero__meta">
+            <span className="sx-rec" aria-hidden="true" /> SN·00 — Dakar, Sénégal
           </p>
-
-          {/* Tagline mono */}
-          <p ref={taglineRef} className="hero__tagline">
-            React · Flutter · Laravel · MySQL · Dakar
+          <h1 ref={titleRef} className="sx-hero__title" aria-label="Idrissa Kane">IDRISSA KANE</h1>
+          <p className="sx-hero__sig" aria-label="serial dev">
+            <span>serial</span><span className="sx-caret" aria-hidden="true">|</span><span>dev</span>
           </p>
-
-          {/* Actions */}
-          <div ref={actionsRef} className="hero__actions">
-            <Link to="/projets" className="btn btn--primary" data-cursor="VOIR">
-              Voir mes projets
-              <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
-                <path d="M5 12h14M12 5l7 7-7 7"/>
-              </svg>
-            </Link>
-            <Link to="/contact" className="btn btn--ghost" data-cursor="CONTACT">Me contacter</Link>
+          <p className="sx-hero__sub">
+            Développeur full stack. Web, mobile, paiement mobile money&nbsp;— je conçois,
+            je code et je mets en ligne, projet après projet.
+          </p>
+          <div className="sx-hero__actions">
+            <Link to="/projets" className="btn btn--primary" data-cursor="VOIR">Voir la série <Arrow /></Link>
+            <Link to="/contact" className="btn btn--ghost" data-cursor="CONTACT">Démarrer un projet</Link>
           </div>
         </div>
 
-        {/* Scroll indicator */}
-        <div ref={scrollRef} className="hero__scroll" aria-hidden="true">
-          <span className="hero__scroll-label">Scroll</span>
-          <span className="hero__scroll-line" />
+        <div className="sx-hero__cue" aria-hidden="true">
+          <span>scroll</span>
+          <span className="sx-hero__cue-line" />
         </div>
       </section>
 
-      {/* ════════════ MARQUEE ════════════ */}
+      {/* ════════ La pile ════════ */}
       <div className="marquee-section" aria-hidden="true">
         <div className="marquee-track">
-          {['React','Flutter','Laravel','MySQL','PHP','Dart','JavaScript','API REST','Mobile','Web',
-            'React','Flutter','Laravel','MySQL','PHP','Dart','JavaScript','API REST','Mobile','Web',
+          {['React', 'Flutter', 'Laravel', 'PostgreSQL', 'MySQL', 'PHP', 'Dart', 'TypeScript', 'Wave', 'Orange Money',
+            'React', 'Flutter', 'Laravel', 'PostgreSQL', 'MySQL', 'PHP', 'Dart', 'TypeScript', 'Wave', 'Orange Money',
           ].map((item, i) => (
-            <span key={i} className="marquee-item">
-              {item}<span className="marquee-sep"> · </span>
-            </span>
+            <span key={i} className="marquee-item">{item}<span className="marquee-sep"> | </span></span>
           ))}
         </div>
       </div>
 
-      {/* ════════════ STATS ════════════ */}
-      <section className="stats-section" aria-label="En chiffres">
-        <div className="stats-grid">
-          {[
-            { target: '20', suffix: '+',  label: 'Projets livrés' },
-            { target: '2',  suffix: '',   label: "Ans d'expérience" },
-            { target: '100',suffix: '%',  label: 'Satisfaction client' },
-          ].map(({ target, suffix, label }) => (
-            <div key={label} className="stat-item">
-              <div className="stat-item__value">
-                <AnimatedCounter target={target} suffix={suffix} />
-              </div>
-              <div className="stat-item__label">{label}</div>
-            </div>
-          ))}
-        </div>
-      </section>
-
-      {/* ════════════ FEATURED PROJECTS ════════════ */}
-      <section className="featured-section" aria-label="Projets récents">
-        <div className="featured-header gsap-reveal">
-          <div>
-            <div className="eyebrow">Sélection</div>
-            <h2>Projets récents</h2>
-          </div>
-          <Link to="/projets" className="btn btn--ghost">
-            Tous les projets
-            <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
-              <path d="M5 12h14M12 5l7 7-7 7"/>
-            </svg>
-          </Link>
+      {/* ════════ Le fil ════════ */}
+      <div className="sx-story">
+        <div className="sx-thread" aria-hidden="true">
+          <span className="sx-thread__fill" />
+          <span className="sx-thread__head" />
         </div>
 
-        <div className="featured-list">
-          {FEATURED.map((p, i) => (
-            <a key={p.id} href={p.link} target="_blank" rel="noreferrer" className="featured-item" data-cursor="OUVRIR">
-              <span className="featured-item__num">0{i + 1}</span>
-              <div>
-                <div className="featured-item__title">{p.title}</div>
-                <div className="featured-item__tags">
-                  {p.stack.slice(0, 4).map(t => <span key={t} className="chip">{t}</span>)}
+        {/* SN·01 — LA SÉRIE */}
+        <section className="sx-chapter" aria-labelledby="sx-serie">
+          <span className="sx-node" aria-hidden="true" />
+          <ChapterLabel n={1}>La série</ChapterLabel>
+          <h2 id="sx-serie" className="sx-statement sx-reveal">
+            <Counter value={TOTAL} /> projets sortis de l'atelier.{' '}
+            <em><Counter value={LIVE} /> sont en ligne</em> en ce moment.
+            Un seul développeur, du cahier des charges à la mise en production.
+          </h2>
+          <dl className="sx-figures sx-reveal">
+            <div><dt>Projets</dt><dd>{pad(TOTAL)}</dd></div>
+            <div><dt>En ligne</dt><dd>{pad(LIVE)}</dd></div>
+            <div><dt>Années</dt><dd>02</dd></div>
+            <div><dt>Base</dt><dd>DKR</dd></div>
+          </dl>
+        </section>
+
+        {/* SN·02 — DERNIÈRES SORTIES */}
+        <section className="sx-chapter" aria-labelledby="sx-sorties">
+          <span className="sx-node" aria-hidden="true" />
+          <ChapterLabel n={2}>Dernières sorties</ChapterLabel>
+          <h2 id="sx-sorties" className="sx-title sx-reveal">Les plus gros numéros</h2>
+
+          <div className="sx-releases">
+            {RELEASES.map((p, i) => (
+              <Link
+                key={p.slug}
+                to={`/projets/${p.slug}`}
+                className={`sx-release ${i % 2 === 0 ? 'sx-release--left' : 'sx-release--right'}`}
+                data-cursor="OUVRIR"
+              >
+                <div className="sx-release__shot">
+                  {p.screenshot && <img src={p.screenshot} alt={`Aperçu de ${p.title}`} loading="lazy" decoding="async" />}
+                  <span className="sx-corner sx-corner--tl" aria-hidden="true" />
+                  <span className="sx-corner sx-corner--br" aria-hidden="true" />
                 </div>
-              </div>
-              <div className="featured-item__arrow" aria-hidden="true">
-                <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
-                  <path d="M5 12h14M12 5l7 7-7 7"/>
-                </svg>
-              </div>
-            </a>
-          ))}
-        </div>
-      </section>
+                <div className="sx-release__body">
+                  <span className="sx-release__sn">N°{pad(projects.indexOf(p) + 1, 3)} · {p.year}</span>
+                  <h3 className="sx-release__title">{p.title}</h3>
+                  <p className="sx-release__text">{p.summary}</p>
+                  <div className="sx-release__tags">
+                    {p.stack.slice(0, 4).map(t => <span key={t} className="chip">{t}</span>)}
+                  </div>
+                  <span className="sx-release__cta">
+                    {p.live ? <><span className="sx-live" aria-hidden="true" /> En ligne</> : 'Voir la fiche'} <Arrow />
+                  </span>
+                </div>
+              </Link>
+            ))}
+          </div>
 
-      {/* ════════════ ABOUT TEASER ════════════ */}
-      <section className="about-teaser" aria-label="À propos">
-        <div className="about-teaser__left">
-          <div className="eyebrow gsap-reveal">À propos</div>
-          <h2 className="gsap-reveal">Développeur Full&nbsp;Stack basé à Dakar</h2>
-          <p className="gsap-reveal">
-            Je conçois et développe des applications web et mobiles de bout en bout.
-            Du back-end Laravel à l'animation React — une seule interlocution.
-          </p>
-          <Link to="/a-propos" className="btn btn--ghost gsap-reveal">
-            En savoir plus
-            <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
-              <path d="M5 12h14M12 5l7 7-7 7"/>
-            </svg>
-          </Link>
-        </div>
+          <div className="sx-center sx-reveal">
+            <Link to="/projets" className="btn btn--ghost">Voir les {TOTAL} de la série <Arrow /></Link>
+          </div>
+        </section>
 
-        <div className="about-teaser__grid">
-          {[
-            { title: 'Full Stack',  text: "Du modèle de données à l'animation UI.",
-              icon: <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/></svg> },
-            { title: 'Mobile',     text: 'Apps iOS et Android avec Flutter & React Native.',
-              icon: <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round"><rect x="5" y="2" width="14" height="20" rx="2"/><line x1="12" y1="18" x2="12.01" y2="18"/></svg> },
-            { title: 'Backend',    text: 'APIs REST robustes avec Laravel et PHP.',
-              icon: <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round"><path d="M5 12h14M5 6h14M5 18h7"/></svg> },
-            { title: 'Paiement',   text: 'Wave, Orange Money, PayDunya intégrés.',
-              icon: <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round"><rect x="2" y="5" width="20" height="14" rx="2"/><line x1="2" y1="10" x2="22" y2="10"/></svg> },
-          ].map(({ title, text, icon }) => (
-            <div key={title} className="about-teaser__card">
-              <div className="about-teaser__card-icon">{icon}</div>
-              <div className="about-teaser__card-title">{title}</div>
-              <div className="about-teaser__card-text">{text}</div>
-            </div>
-          ))}
-        </div>
-      </section>
+        {/* SN·03 — LA MÉTHODE */}
+        <section className="sx-chapter" aria-labelledby="sx-methode">
+          <span className="sx-node" aria-hidden="true" />
+          <ChapterLabel n={3}>La méthode</ChapterLabel>
+          <h2 id="sx-methode" className="sx-title sx-reveal">Du clavier à la production</h2>
+          <ol className="sx-steps">
+            {METHOD.map((s, i) => (
+              <li key={s.cmd} className="sx-step">
+                <span className="sx-step__cmd"><span aria-hidden="true">$ </span>{s.cmd}</span>
+                <span className="sx-step__n" aria-hidden="true">{pad(i + 1)}</span>
+                <h3 className="sx-step__title">{s.title}</h3>
+                <p className="sx-step__text">{s.text}</p>
+              </li>
+            ))}
+          </ol>
+          <div className="sx-center sx-reveal">
+            <Link to="/a-propos" className="btn btn--ghost">Qui est derrière <Arrow /></Link>
+          </div>
+        </section>
 
-      {/* ════════════ CTA ════════════ */}
-      <section className="cta-section" aria-label="Contact">
-        <div className="eyebrow gsap-reveal" style={{ justifyContent: 'center' }}>Parlons-en</div>
-        <h2 className="gsap-reveal">Un projet en tête ?</h2>
-        <p className="gsap-reveal">Premier échange gratuit. Décrivez votre idée — je vous réponds sous 24h.</p>
-        <div className="btn-row gsap-reveal">
-          <Link to="/contact" className="btn btn--primary">
-            Démarrer un projet
-            <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
-              <path d="M5 12h14M12 5l7 7-7 7"/>
-            </svg>
-          </Link>
-          <a href="/CV_IDRISSA_M_KANE.pdf" target="_blank" rel="noopener noreferrer" className="btn btn--ghost">
-            Télécharger le CV
-          </a>
-        </div>
-      </section>
-
+        {/* SN·04 — PROCHAIN NUMÉRO : le fil finit sa course ici */}
+        <section className="sx-chapter sx-next" aria-labelledby="sx-next">
+          <span className="sx-node sx-node--end" aria-hidden="true" />
+          <ChapterLabel n={4}>Prochain numéro</ChapterLabel>
+          <p className="sx-next__serial" aria-hidden="true">{NEXT_SERIAL}</p>
+          <h2 id="sx-next" className="sx-next__title sx-reveal">
+            Le prochain de la série, c'est votre projet<span className="sx-caret" aria-hidden="true">|</span>
+          </h2>
+          <p className="sx-next__text sx-reveal">Premier échange gratuit. Décrivez votre idée — je vous réponds sous 24&nbsp;h.</p>
+          <div className="btn-row sx-reveal">
+            <Link to="/contact" className="btn btn--primary">Démarrer un projet <Arrow /></Link>
+            <a href="/CV_IDRISSA_M_KANE.pdf" target="_blank" rel="noopener noreferrer" className="btn btn--ghost">Télécharger le CV</a>
+          </div>
+        </section>
+      </div>
     </div>
   )
 }

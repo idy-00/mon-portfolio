@@ -1,6 +1,265 @@
 // Source de vérité manuelle — jamais modifié par le script
 // repoName = nom exact du repo GitHub pour le matching live URL
+
+// Repos détectés automatiquement mais à ne pas afficher (doublons, anciennes versions)
+export const hiddenRepos = [
+  'yash-jewerly', // première version de Čaané (même marque, même cliente)
+  'nalaaris-parfum',
+  'glorysmile',
+]
+
+// Ordre d'affichage : les gros projets d'abord, le reste suit dans l'ordre du tableau
+export const displayOrder = [
+  'finora360', 'paytrack', 'jeli', 'sunufoot', 'yankee',
+  'projetinvest', 'immoclair', 'emirati-vape', 'esa', 'certifio',
+]
+
 export const manualProjects = [
+  {
+    id: 21,
+    slug: 'finora360',
+    repoName: null, // repo privé
+    title: 'Finora360 — Pilotage financier',
+    category: 'Application Web / SaaS',
+    year: '2026',
+    role: 'Développeur Full Stack',
+    duration: null,
+    stack: ['Laravel 12', 'React', 'MySQL', 'Sanctum', 'Tailwind CSS', 'Zustand', 'DexPay'],
+    summary:
+      "Plateforme de gestion financière complète pour les entreprises et organisations d'Afrique francophone : facturation, dépenses, trésorerie, budgets et comptabilité SYSCOHADA dans un seul outil.",
+    impact:
+      "Chaque opération (facture, dépense, paie, paiement) génère automatiquement son écriture comptable équilibrée, et les états SYSCOHADA (balance, grand-livre, bilan, compte de résultat) se produisent en un clic. Plus de 270 tests automatisés.",
+    features: [
+      "Comptabilité SYSCOHADA : plan comptable, journaux, clôture des périodes, bilan et compte de résultat",
+      "Workflow de dépenses à 2 niveaux d'approbation, avec règle des 4 yeux (on ne valide jamais sa propre demande)",
+      "Budgets avec engagement : les dépenses sont réservées sur le budget, sans dépassement même en accès simultané",
+      "Facturation, achats, trésorerie, immobilisations et amortissements, stock",
+      "Module paie avec écritures automatiques",
+      "Multi-organisation et multidevise, avec écarts de change comptabilisés automatiquement",
+      "Paiements mobile money via DexPay (Wave, Orange Money, Free Money) avec webhooks signés et idempotents",
+      "Exports vers Sage, Odoo et QuickBooks",
+      "Tableaux de bord par rôle : admin, comptable, caissier, demandeur, achats, audit",
+    ],
+    challenge:
+      "Garantir qu'aucune opération ne casse l'équilibre comptable : un service central unique génère toutes les écritures, les périodes clôturées sont verrouillées, et les exports sont vérifiés contre la balance au centime près.",
+    link: null,
+    live: 'https://finora360.org',
+    screenshot: '/images/finora-screenshot.webp',
+  },
+  {
+    id: 15,
+    slug: 'paytrack',
+    repoName: null, // repo privé
+    title: 'PayTrack — Ventes à crédit',
+    category: 'Application Web / SaaS',
+    year: '2026',
+    role: 'Développeur Full Stack',
+    duration: null,
+    stack: ['Laravel 11', 'React', 'Flutter', 'MySQL', 'Sanctum', 'DexPay', 'Wave', 'Orange Money'],
+    summary:
+      "SaaS de suivi des ventes à crédit et paiements par tranche pour les commerçants sénégalais — web, application mobile et API, en production sur paytrack.sn.",
+    impact:
+      "Plateforme multi-boutiques : chaque commerçant a ses données isolées, ses vendeurs, ses stocks et ses abonnements, avec encaissement mobile money via DexPay (Wave, Orange Money).",
+    features: [
+      "Dossiers de vente à crédit avec échéancier, QR code et reçus PDF automatiques",
+      "Rappels de paiement aux clients par SMS et WhatsApp",
+      "Multi-tenant : isolation stricte des données par boutique (scope global + tests d'isolation)",
+      "Rôles admin / responsable / vendeur avec permissions (Spatie)",
+      "Stock, commandes clients et fournisseurs, exports CSV et PDF",
+      "Abonnements par pack avec quotas produits/utilisateurs appliqués côté serveur",
+      "Application mobile Flutter pour les vendeurs sur le terrain",
+    ],
+    challenge:
+      "Les quotas des packs n'étaient qu'affichés, jamais vérifiés. Je les ai rendus effectifs côté API (refus 403 explicite au dépassement), couverts par des tests qui vérifient aussi l'isolation entre boutiques.",
+    link: null,
+    live: 'https://paytrack.sn',
+    screenshot: '/images/paytrack-screenshot.webp',
+  },
+  {
+    id: 22,
+    slug: 'projetinvest',
+    repoName: null, // repo privé
+    title: 'ProjetInvest — Investissement UEMOA',
+    category: 'Application Web / SaaS',
+    year: '2026',
+    role: 'Développeur Full Stack',
+    duration: null,
+    stack: ['Laravel 12', 'React', 'Vite', 'Tailwind CSS', 'Sanctum', 'Spatie Permission'],
+    summary:
+      "Plateforme de mise en relation entre porteurs de projets et investisseurs au Sénégal et dans l'UEMOA, développée pour ATAABA Expertise.",
+    impact:
+      "Chaque projet est évalué par un analyste avant publication, et les documents sensibles restent dans une data room dont l'accès se demande et se valide.",
+    features: [
+      "Quatre rôles : porteur de projet, investisseur, analyste, administrateur",
+      "Dépôt et soumission de projets, évaluation par un analyste, puis publication",
+      "Offres d'investissement : création, soumission et réponse du porteur",
+      "Data room : documents privés accessibles sur demande validée",
+      "API REST Laravel sécurisée (Sanctum) + front React",
+    ],
+    challenge: null,
+    link: null,
+    live: 'https://projetinvest.org',
+    screenshot: '/images/projetinvest-screenshot.webp',
+  },
+  {
+    id: 23,
+    slug: 'immoclair',
+    repoName: null, // immoclair.pages.dev n'est pas ce projet : pas d'URL live auto
+    title: 'ImmoClair — Immobilier vérifié',
+    category: 'Application Web',
+    year: '2026',
+    role: 'Développeur Full Stack',
+    duration: null,
+    stack: ['Laravel 12', 'PHP', 'Alpine.js', 'Tailwind CSS', 'Leaflet', 'MySQL'],
+    summary:
+      "Plateforme immobilière de confiance pour le Sénégal et la diaspora : vente et location de biens vérifiés, chaque annonce affichant un score de clarté documentaire.",
+    impact:
+      "Un score sur 100 calculé à partir de 10 critères pondérés (titre foncier, identité du propriétaire, plan cadastral, absence d'hypothèque ou de litige…) pour savoir avant d'acheter ou de louer.",
+    features: [
+      "Score de clarté documentaire : Faible, Moyen ou Élevé",
+      "Vendeurs de tous profils : promoteur, agence, particulier, mandataire, héritier — avec validation",
+      "Rôle vérificateur dédié au contrôle des documents",
+      "Recherche à facettes, favoris, carte Leaflet / OpenStreetMap",
+      "Double authentification pour les mandataires, réinitialisation de mot de passe",
+      "Aucun CDN externe : polices et scripts auto-hébergés",
+    ],
+    challenge:
+      "Traduire le risque juridique d'un achat immobilier au Sénégal en un indicateur simple : le titre foncier pèse 25 % du score, car c'est le document fondamental de la propriété.",
+    link: null,
+    live: 'https://immoclair.org',
+    screenshot: '/images/immoclair-screenshot.webp',
+  },
+  {
+    id: 24,
+    slug: 'emirati-vape',
+    repoName: null,
+    title: 'Emirati Vape — E-commerce',
+    category: 'Application Web',
+    year: '2026',
+    role: 'Développeur Full Stack',
+    duration: null,
+    stack: ['Laravel 12', 'Inertia (SSR)', 'React 19', 'TypeScript', 'Tailwind CSS', 'Filament 4', 'GSAP', 'PayDunya'],
+    summary:
+      "Refonte complète de la boutique en ligne d'Emirati Vape à Dakar : catalogue par marque et par saveur, panier, commande WhatsApp et paiement en ligne, avec un back-office pour gérer stock et prix.",
+    impact:
+      "Rendu serveur (SSR) pour le référencement, back-office Filament sécurisé par double authentification obligatoire, plus de 130 tests automatisés (back, front et parcours Playwright).",
+    features: [
+      "Catalogue par marque, saveur et nombre de bouffées, recherche instantanée et filtres partageables",
+      "Chaque produit décliné en saveurs, chacune avec son stock et sa photo",
+      "Sélection envoyée sur WhatsApp ou paiement PayDunya, avec webhook signé et rapprochement automatique",
+      "Back-office Filament : produits, stock, prix, tableau de bord — comptes admin séparés et 2FA obligatoire",
+      "Porte d'âge sans pénaliser le référencement",
+      "Sécurité : CSP stricte avec nonce, HSTS, polices auto-hébergées",
+      "Accessibilité vérifiée avec axe, mesures Lighthouse et INP",
+    ],
+    challenge: null,
+    link: null,
+    live: 'https://emirativape.com',
+    screenshot: '/images/emirativape-screenshot.webp',
+  },
+  {
+    id: 17,
+    slug: 'esa',
+    repoName: null,
+    title: 'ESA — École Supérieure Aéronautique',
+    category: 'Application Web',
+    year: '2026',
+    role: 'Développeur Full Stack',
+    duration: null,
+    stack: ['React', 'Vite', 'PHP', 'JavaScript'],
+    summary:
+      "Site officiel de l'École Supérieure Aéronautique de Dakar (esa.sn) — formations, admissions, actualités et vie étudiante, avec un espace d'administration pour l'école.",
+    impact:
+      "L'école publie elle-même ses actualités et ses photos depuis /admin, sans passer par un développeur ni par une base de données.",
+    features: [
+      "Présentation des formations, du BTS au Master, et demande d'inscription",
+      "Tableau de bord /admin : actualités et vie étudiante, upload de photos",
+      "Comptes administrateurs multiples, historique et restauration des contenus",
+      "Statistiques de visite anonymes, mensuelles",
+      "API PHP légère avec stockage JSON protégé — adaptée à l'hébergement mutualisé de l'école",
+    ],
+    challenge:
+      "Donner à l'école l'autonomie d'un CMS sur un hébergement mutualisé sans MySQL : une petite API PHP, des fichiers de contenu protégés et un historique qui permet d'annuler une erreur.",
+    link: null,
+    live: 'https://esa.sn',
+    screenshot: '/images/esa-screenshot.webp',
+  },
+  {
+    id: 18,
+    slug: 'caane-jewelry',
+    repoName: 'caane-jewelry',
+    title: 'Čaané — Joaillerie',
+    category: 'Application Web',
+    year: '2026',
+    role: 'Développeur Front-End',
+    duration: null,
+    stack: ['React', 'Vite', 'Tailwind CSS', 'Framer Motion'],
+    summary:
+      "Vitrine et boutique de Čaané by Fatima Yashba, maison de joaillerie dakaroise (acier 316L plaqué or 18K) avec livraison internationale.",
+    impact:
+      "Direction éditoriale haut de gamme : typographie de maison de luxe, grandes photos portées, navigation par collections (femme, homme, été).",
+    features: [
+      "Collections et fiches produits avec prix",
+      "Mise en page éditoriale inspirée des maisons de joaillerie",
+      "Animations Framer Motion",
+      "Site né d'une première version (Yash Jewelry) refondue avec la cliente",
+    ],
+    challenge: null,
+    link: 'https://github.com/idy-00/caane-jewelry',
+    live: 'https://caane.pages.dev',
+    screenshot: '/images/caane-screenshot.webp',
+  },
+  {
+    id: 19,
+    slug: 'outside',
+    repoName: 'outside',
+    title: 'OUTSIDE™ — Streetwear',
+    category: 'Application Web',
+    year: '2026',
+    role: 'Développeur Front-End',
+    duration: null,
+    stack: ['React', 'Vite'],
+    summary:
+      "Vitrine et boutique de la marque de streetwear dakaroise OUTSIDE™ — « Blame Yourself Not The World » — sur son propre domaine.",
+    impact: null,
+    features: [
+      "Hero plein écran aux couleurs de la marque",
+      "Collection, lookbook et panier",
+      "Mis en ligne sur le domaine de la marque (outsideworld.shop)",
+    ],
+    challenge: null,
+    link: 'https://github.com/idy-00/outside',
+    live: 'https://outsideworld.shop',
+    screenshot: '/images/outside-screenshot.webp',
+  },
+  {
+    id: 14,
+    slug: 'aci-aviation',
+    repoName: 'aciaviation',
+    title: 'ACI Aviation',
+    category: 'Application Web',
+    year: '2025',
+    role: 'Développeur Front-End',
+    duration: '3 semaines',
+    stack: ['React', 'Vite', 'JavaScript', 'CSS'],
+    summary:
+      "Site vitrine institutionnel pour ACI Aviation, organisme de formation et de conseil dans le secteur aéronautique au Sénégal — présentation des services, partenaires et expertises.",
+    impact:
+      "Interface professionnelle multi-sections avec présentation des domaines d'expertise (Airport Management, Safety, Air Transport), galerie partenaires institutionnels (ANACIM, ASECNA, Armée de l'Air) et formulaire de contact.",
+    features: [
+      "Hero animé avec accroche institutionnelle et appel à l'action",
+      "Présentation des 6 domaines d'expertise : Airport Management, Safety, Air Transport, Airlines Operations, Airport Planning, Flight Information",
+      "Galerie partenaires : ANACIM, ASECNA, Armée de l'Air Sénégal, AIBD, ESA et plus",
+      "Section À propos avec mission et valeurs d'ACI Aviation",
+      "Formulaire de contact intégré",
+      "Design responsive — optimisé desktop et mobile",
+    ],
+    challenge:
+      "Traduire l'identité institutionnelle d'un acteur du secteur aéronautique en un site moderne et crédible, avec une charte graphique cohérente entre les nombreuses sections de contenu.",
+    link: 'https://github.com/idy-00/aciaviation',
+    live: 'https://aci-aviation.com',
+    screenshot: '/images/aci-screenshot.webp',
+  },
   {
     id: 8,
     slug: 'bmf',
@@ -17,7 +276,7 @@ export const manualProjects = [
     challenge: null,
     link: 'https://github.com/idy-00/BMF',
     live: 'https://bmf-6fa.pages.dev',
-    screenshot: '/images/bmf.webp',
+    screenshot: '/images/bmf-screenshot.webp',
   },
   {
     id: 9,
@@ -99,8 +358,8 @@ export const manualProjects = [
     challenge:
       "Le défi principal était les notifications FCM sur Android 13+ avec l'app en background. La solution data-only combinée à un foreground service Flutter a permis d'afficher les alertes plein écran sans exception de batterie système.",
     link: 'https://github.com/idy-00',
-    live: 'https://teal-meerkat-951921.hostingersite.com',
-    screenshot: '/images/yankee-screenshot.png',
+    live: 'https://yankee.sn',
+    screenshot: '/images/yankee-mobile-screenshot.webp',
   },
   {
     id: 12,
@@ -128,8 +387,8 @@ export const manualProjects = [
     challenge:
       "Synchroniser les disponibilités en temps réel entre l'app mobile et l'interface web quand plusieurs joueurs réservent le même créneau simultanément, résolu avec un verrou pessimiste MySQL et une file d'attente côté backend.",
     link: 'https://github.com/idy-00',
-    live: 'https://peru-spoonbill-192767.hostingersite.com',
-    screenshot: '/images/sunufoot-screenshot.png',
+    live: 'https://sunufoot.com',
+    screenshot: '/images/sunufoot-mobile-screenshot.webp',
   },
   {
     id: 1,
@@ -165,24 +424,24 @@ export const manualProjects = [
     repoName: 'Antigaspi',
     title: 'Jëli',
     category: 'Application Web / SaaS',
-    year: '2025',
+    year: '2025 – 2026',
     role: 'Développeur Full Stack',
-    duration: '2 mois',
-    stack: ['Laravel 12', 'PHP', 'Tailwind CSS', 'MySQL', 'WebSockets', 'Leaflet.js'],
+    duration: null,
+    stack: ['Laravel 12', 'PHP', 'PostgreSQL', 'Flutter', 'Tailwind CSS', 'DexPay', 'Cloudinary', 'Docker'],
     summary:
-      "Plateforme B2B2C de revalorisation des invendus alimentaires en temps réel. Les commerçants publient leurs surplus, les clients réservent avant que les stocks n'expirent.",
+      "Plateforme anti-gaspillage : les commerces publient leurs paniers d'invendus à prix réduit, les clients les réservent et les paient depuis l'application mobile avant de les retirer.",
     impact:
-      "Architecture SaaS multi-tenant, notifications asynchrones WebSocket, géolocalisation Leaflet des points de vente, réservation dynamique avec gestion des stocks.",
+      "Back-end Laravel sur PostgreSQL, application client Flutter et espace commerçant web — le tout couvert par plus de 200 tests automatisés côté serveur.",
     features: [
-      "Tableau de bord commerçant : publication invendus avec prix réduit, délai d'expiration, photo",
-      "Carte interactive Leaflet : localisation des points de vente à proximité en temps réel",
-      "Réservation en 1 clic avec décompte du stock disponible",
-      "WebSockets : mise à jour instantanée des stocks sans rechargement",
-      "Architecture multi-tenant : chaque commerçant a son espace isolé",
-      "Module analytique : taux de vente des invendus, produits les plus réservés",
+      "Application client Flutter : connexion par code OTP envoyé par email, sans mot de passe",
+      "Recherche et réservation de paniers avec gestion du stock",
+      "Paiement mobile money via DexPay : seul un paiement vérifié par le serveur confirme la commande",
+      "Machine à états des commandes, annulation et remboursement encadrés",
+      "Espace commerçant web et back-office administrateur",
+      "Images hébergées sur Cloudinary, déploiement Docker",
     ],
     challenge:
-      "La gestion des conflits de réservation simultanée : utilisation de transactions MySQL avec verrou pessimiste pour éviter la surréservation quand plusieurs clients réservent le même article en même temps.",
+      "Éviter qu'une commande soit validée sur la seule foi d'une redirection de paiement : la confirmation ne vient que de la notification serveur authentifiée, et les annulations passent sous verrou pour ne jamais rembourser deux fois.",
     link: 'https://github.com/idy-00/Antigaspi',
     live: null,
     screenshot: '/images/jeli-screenshot.png',

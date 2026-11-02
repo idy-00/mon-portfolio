@@ -19,10 +19,12 @@ const NAV_ITEMS = [
 ]
 
 /* ── Page transition variants ── */
+/* Balayage « curseur » : un panneau noir traverse l'écran de gauche à droite,
+   bord d'attaque lumineux, marque serial|dev au centre. */
 const curtainVariants = {
-  initial: { scaleY: 0, transformOrigin: 'top' },
-  animate: { scaleY: 0, transformOrigin: 'top' },
-  exit:    { scaleY: 1, transformOrigin: 'top', transition: { duration: 0.35, ease: [0.76, 0, 0.24, 1] } },
+  initial: { x: '0%' },
+  animate: { x: '101%', transition: { duration: 0.55, delay: 0.1, ease: [0.76, 0, 0.24, 1] } },
+  exit:    { x: ['-101%', '0%'], transition: { duration: 0.4, ease: [0.76, 0, 0.24, 1] } },
 }
 const pageVariants = {
   initial: { opacity: 0 },
@@ -60,7 +62,7 @@ function CustomCursor() {
     rafRef.current = requestAnimationFrame(tick)
 
     const onEnter = (e) => {
-      const el = e.target.closest('[data-cursor]')
+      const el = e.target instanceof Element ? e.target.closest('[data-cursor]') : null
       if (!el) return
       const label = el.getAttribute('data-cursor')
       ringEl.classList.add('cursor-ring--hover')
@@ -230,7 +232,7 @@ function Topbar() {
           <div className="brand__mark" data-cursor="HOME">IK</div>
           <div>
             <strong className="brand__name">Idrissa Kane</strong>
-            <span className="brand__role">Full Stack Dev</span>
+            <span className="brand__role">serial<span className="sx-caret">|</span>dev</span>
           </div>
         </div>
 
@@ -360,7 +362,7 @@ function App() {
       <div className="site-shell">
         <Topbar />
 
-        <AnimatePresence mode="wait">
+        <AnimatePresence mode="wait" initial={false}>
           {/* Page transition curtain */}
           <motion.div
             key={location.pathname + '-curtain'}
@@ -370,7 +372,9 @@ function App() {
             animate="animate"
             exit="exit"
             aria-hidden="true"
-          />
+          >
+            <span className="page-curtain__mark">serial<span className="sx-caret">|</span>dev</span>
+          </motion.div>
         </AnimatePresence>
 
         <AnimatePresence mode="wait">
