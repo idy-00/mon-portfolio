@@ -29,10 +29,17 @@ const stCount = (page) => page.evaluate(() => window.__ST?.getAll().length ?? -1
   await page.click('.nav__menu'); await page.waitForTimeout(1200)
   await page.click('#menu a[href="/projets"]'); await settle(page)
   h1cache = await h1(page); log('menu → projets')
-  await page.evaluate(() => window.scrollTo(0, 900)); await page.waitForTimeout(600)
+  // scroll réel (molette → Lenis), puis clic sur une ligne déjà visible : rien ne re-scrolle avant le clic
+  await page.mouse.move(400, 450)
+  for (let i = 0; i < 6; i++) { await page.mouse.wheel(0, 200); await page.waitForTimeout(120) }
+  await page.waitForTimeout(1200)
   const yBefore = await page.evaluate(() => Math.round(window.scrollY))
-  await page.click('.idx__row a[href="/projets/paytrack"]'); await settle(page)
-  h1cache = await h1(page); log('projets → paytrack')
+  const target = await page.evaluate(() => {
+    const a = [...document.querySelectorAll('.idx__row:not([hidden]) a')].find((el) => { const r = el.getBoundingClientRect(); return r.top > 120 && r.bottom < innerHeight - 40 })
+    return a?.getAttribute('href')
+  })
+  await page.click(`.idx__row a[href="${target}"]`); await settle(page)
+  h1cache = await h1(page); log(`projets → ${target.split('/').pop()}`)
   await page.goBack(); await settle(page)
   h1cache = await h1(page); log('retour ×1')
   const yAfter = await page.evaluate(() => Math.round(window.scrollY))
