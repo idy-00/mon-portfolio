@@ -1,0 +1,30 @@
+/* serial|dev : /a-propos */
+.a-head { padding-block: calc(150px + env(safe-area-inset-top, 0px)) 40px; display: grid; gap: 26px; }
+.a-title { font-size: clamp(3rem, 10vw, 10rem); }
+
+.ascii { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); gap: clamp(40px, 6vw, 100px); align-items: center; min-height: 100svh; padding-block: 10vh; }
+.ascii__cv { position: relative; aspect-ratio: 4 / 5; width: min(100%, calc(80svh * .8)); margin-inline: auto; border-radius: var(--radius-l); overflow: hidden; background: var(--ink); }
+.ascii__cv canvas { position: absolute; inset: 0; width: 100%; height: 100%; display: block; }
+.ascii__txt { display: grid; gap: 22px; justify-items: start; }
+.ascii__txt p { margin: 0; font-size: clamp(1.05rem, 1.5vw, 1.3rem); color: var(--bone-2); max-width: 42ch; }
+.ascii__txt .ascii__who { font-size: 12px; color: var(--bone); }
+@media (max-width: 899px) {
+  .ascii { grid-template-columns: minmax(0, 1fr); min-height: 0; }
+  .ascii__cv { width: 100%; }
+}
+
+.log { position: relative; overflow-x: clip; padding-block: clamp(120px, 18vh, 200px); }
+.log__wrap { position: relative; display: grid; grid-template-columns: 120px minmax(0, 1fr); gap: 0 clamp(16px, 3vw, 48px); margin-top: 60px; }
+.log svg { position: absolute; left: 0; top: 0; width: 120px; overflow: visible; }
+.log__items { grid-column: 2; display: grid; gap: clamp(56px, 10vh, 110px); list-style: none; margin: 0; padding: 0; }
+.commit { display: grid; gap: 8px; }
+.commit .mono b { color: var(--bone); font-weight: 500; }
+.commit h2 { margin: 0; font-family: var(--f-display); font-weight: 800; font-size: clamp(1.9rem, 4vw, 3.6rem); line-height: .95; letter-spacing: -.04em; text-wrap: balance; }
+.commit p { margin: 0; color: var(--ash); max-width: 52ch; }
+@media (max-width: 600px) { .log__wrap { grid-template-columns: 56px minmax(0, 1fr); } .log svg { width: 56px; } }
+
+.vals { display: grid; grid-template-columns: repeat(auto-fit, minmax(min(100%, 280px), 1fr)); gap: 48px 56px; padding-block: clamp(40px, 8vh, 100px) clamp(60px, 10vh, 120px); }
+.vals > div { display: grid; gap: 12px; align-content: start; }
+.vals h3 { margin: 0; font-family: var(--f-display); font-weight: 800; font-size: clamp(1.8rem, 3.2vw, 2.8rem); line-height: .95; letter-spacing: -.04em; overflow: hidden; padding-bottom: .08em; }
+.vals h3 span { display: block; }
+.vals p { margin: 0; color: var(--bone-2); }
