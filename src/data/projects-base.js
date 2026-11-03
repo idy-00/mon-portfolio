@@ -57,7 +57,7 @@ export const manualProjects = [
     duration: null,
     stack: ['Laravel 11', 'React', 'Flutter', 'MySQL', 'Sanctum', 'DexPay', 'Wave', 'Orange Money'],
     summary:
-      "SaaS de suivi des ventes à crédit et paiements par tranche pour les commerçants sénégalais — web, application mobile et API, en production sur paytrack.sn.",
+      "SaaS de suivi des ventes à crédit et paiements par tranche pour les commerçants sénégalais. Web, application mobile et API, en production sur paytrack.sn.",
     impact:
       "Plateforme multi-boutiques : chaque commerçant a ses données isolées, ses vendeurs, ses stocks et ses abonnements, avec encaissement mobile money via DexPay (Wave, Orange Money).",
     features: [
@@ -117,7 +117,7 @@ export const manualProjects = [
       "Un score sur 100 calculé à partir de 10 critères pondérés (titre foncier, identité du propriétaire, plan cadastral, absence d'hypothèque ou de litige…) pour savoir avant d'acheter ou de louer.",
     features: [
       "Score de clarté documentaire : Faible, Moyen ou Élevé",
-      "Vendeurs de tous profils : promoteur, agence, particulier, mandataire, héritier — avec validation",
+      "Vendeurs de tous profils : promoteur, agence, particulier, mandataire, héritier, avec validation",
       "Rôle vérificateur dédié au contrôle des documents",
       "Recherche à facettes, favoris, carte Leaflet / OpenStreetMap",
       "Double authentification pour les mandataires, réinitialisation de mot de passe",
@@ -147,7 +147,7 @@ export const manualProjects = [
       "Catalogue par marque, saveur et nombre de bouffées, recherche instantanée et filtres partageables",
       "Chaque produit décliné en saveurs, chacune avec son stock et sa photo",
       "Sélection envoyée sur WhatsApp ou paiement PayDunya, avec webhook signé et rapprochement automatique",
-      "Back-office Filament : produits, stock, prix, tableau de bord — comptes admin séparés et 2FA obligatoire",
+      "Back-office Filament : produits, stock, prix, tableau de bord, comptes admin séparés et 2FA obligatoire",
       "Porte d'âge sans pénaliser le référencement",
       "Sécurité : CSP stricte avec nonce, HSTS, polices auto-hébergées",
       "Accessibilité vérifiée avec axe, mesures Lighthouse et INP",
@@ -168,7 +168,7 @@ export const manualProjects = [
     duration: null,
     stack: ['React', 'Vite', 'PHP', 'JavaScript'],
     summary:
-      "Site officiel de l'École Supérieure Aéronautique de Dakar (esa.sn) — formations, admissions, actualités et vie étudiante, avec un espace d'administration pour l'école.",
+      "Site officiel de l'École Supérieure Aéronautique de Dakar (esa.sn) : formations, admissions, actualités et vie étudiante, avec un espace d'administration pour l'école.",
     impact:
       "L'école publie elle-même ses actualités et ses photos depuis /admin, sans passer par un développeur ni par une base de données.",
     features: [
@@ -176,7 +176,7 @@ export const manualProjects = [
       "Tableau de bord /admin : actualités et vie étudiante, upload de photos",
       "Comptes administrateurs multiples, historique et restauration des contenus",
       "Statistiques de visite anonymes, mensuelles",
-      "API PHP légère avec stockage JSON protégé — adaptée à l'hébergement mutualisé de l'école",
+      "API PHP légère avec stockage JSON protégé, adaptée à l'hébergement mutualisé de l'école",
     ],
     challenge:
       "Donner à l'école l'autonomie d'un CMS sur un hébergement mutualisé sans MySQL : une petite API PHP, des fichiers de contenu protégés et un historique qui permet d'annuler une erreur.",
@@ -220,7 +220,7 @@ export const manualProjects = [
     duration: null,
     stack: ['React', 'Vite'],
     summary:
-      "Vitrine et boutique de la marque de streetwear dakaroise OUTSIDE™ — « Blame Yourself Not The World » — sur son propre domaine.",
+      "Vitrine et boutique de la marque de streetwear dakaroise OUTSIDE™ (« Blame Yourself Not The World ») sur son propre domaine.",
     impact: null,
     features: [
       "Hero plein écran aux couleurs de la marque",
@@ -243,7 +243,7 @@ export const manualProjects = [
     duration: '3 semaines',
     stack: ['React', 'Vite', 'JavaScript', 'CSS'],
     summary:
-      "Site vitrine institutionnel pour ACI Aviation, organisme de formation et de conseil dans le secteur aéronautique au Sénégal — présentation des services, partenaires et expertises.",
+      "Site vitrine institutionnel pour ACI Aviation, organisme de formation et de conseil dans le secteur aéronautique au Sénégal : présentation des services, partenaires et expertises.",
     impact:
       "Interface professionnelle multi-sections avec présentation des domaines d'expertise (Airport Management, Safety, Air Transport), galerie partenaires institutionnels (ANACIM, ASECNA, Armée de l'Air) et formulaire de contact.",
     features: [
@@ -252,7 +252,7 @@ export const manualProjects = [
       "Galerie partenaires : ANACIM, ASECNA, Armée de l'Air Sénégal, AIBD, ESA et plus",
       "Section À propos avec mission et valeurs d'ACI Aviation",
       "Formulaire de contact intégré",
-      "Design responsive — optimisé desktop et mobile",
+      "Design responsive, optimisé desktop et mobile",
     ],
     challenge:
       "Traduire l'identité institutionnelle d'un acteur du secteur aéronautique en un site moderne et crédible, avec une charte graphique cohérente entre les nombreuses sections de contenu.",
@@ -270,7 +270,7 @@ export const manualProjects = [
     role: 'Développeur Full Stack',
     duration: null,
     stack: ['Next.js', 'React', 'TypeScript', 'Tailwind CSS'],
-    summary: 'Restaurant fast-food à Dakar — menu, offres du jour, commande via WhatsApp et localisation Google Maps.',
+    summary: 'Restaurant fast-food à Dakar : menu, offres du jour, commande via WhatsApp et localisation Google Maps.',
     impact: null,
     features: [],
     challenge: null,
@@ -288,7 +288,7 @@ export const manualProjects = [
     role: 'Développeur Front-End',
     duration: null,
     stack: ['React', 'Vite', 'JavaScript'],
-    summary: 'Site du salon Minka Hair Cut — services proposés, informations pratiques et réservation en ligne.',
+    summary: 'Site du salon Minka Hair Cut : services proposés, informations pratiques et réservation en ligne.',
     impact: null,
     features: [],
     challenge: null,
@@ -306,7 +306,7 @@ export const manualProjects = [
     role: 'Développeur Front-End',
     duration: null,
     stack: ['React', 'Vite', 'JavaScript'],
-    summary: 'Restaurant fast-casual à Dakar (burgers, bowls, smoothies) — menu, infos pratiques et commande via WhatsApp.',
+    summary: 'Restaurant fast-casual à Dakar (burgers, bowls, smoothies) : menu, infos pratiques et commande via WhatsApp.',
     impact: null,
     features: [],
     challenge: null,
@@ -324,7 +324,7 @@ export const manualProjects = [
     role: 'Développeur Full Stack',
     duration: null,
     stack: ['JavaScript', 'Express'],
-    summary: 'Plateforme de e-commerce pour entrepreneurs africains — formations complètes sur la boutique en ligne, l\'approvisionnement et la publicité Facebook.',
+    summary: 'Plateforme de e-commerce pour entrepreneurs africains : formations complètes sur la boutique en ligne, l\'approvisionnement et la publicité Facebook.',
     impact: null,
     features: [],
     challenge: null,
@@ -343,7 +343,7 @@ export const manualProjects = [
     duration: '8 mois',
     stack: ['Flutter', 'Dart', 'PHP', 'Laravel', 'MySQL', 'Firebase FCM', 'Google Maps API'],
     summary:
-      "Application de livraison complète — app client Flutter, app livreur Flutter et backend PHP/Laravel sur Hostinger. Trois interfaces distinctes pour passer, accepter et suivre les commandes en temps réel.",
+      "Application de livraison complète : app client Flutter, app livreur Flutter et backend PHP/Laravel sur Hostinger. Trois interfaces distinctes pour passer, accepter et suivre les commandes en temps réel.",
     impact:
       "Notifications plein écran temps réel via Firebase FCM (data-only), géolocalisation Google Maps, autocomplete adresses Google Places, système Yonima multi-véhicules, paiement mobile money (Wave, Orange Money), commission livreur automatique.",
     features: [
@@ -352,7 +352,7 @@ export const manualProjects = [
       "Backend PHP/Laravel : API REST complète, gestion états commandes, webhook paiement",
       "Firebase FCM data-only : notifications plein écran sur Android même app fermée",
       "Google Places Autocomplete : saisie adresse intelligente avec suggestions",
-      "Multi-véhicules : moto, tricycle, camionnette — tarification différenciée par type",
+      "Multi-véhicules : moto, tricycle, camionnette, tarification différenciée par type",
       "Dashboard admin : suivi commandes live, gestion livreurs, statistiques revenus",
     ],
     challenge:
@@ -372,7 +372,7 @@ export const manualProjects = [
     duration: '4 mois',
     stack: ['Flutter', 'Dart', 'PHP 8', 'Tailwind CSS', 'GSAP', 'MySQL', 'Firebase FCM', 'Wave', 'Orange Money'],
     summary:
-      "Plateforme de réservation de terrains de football au Sénégal — app mobile Flutter, interface web propriétaires de terrains et backend PHP MVC sur Hostinger.",
+      "Plateforme de réservation de terrains de football au Sénégal : app mobile Flutter, interface web propriétaires de terrains et backend PHP MVC sur Hostinger.",
     impact:
       "Paiement mobile money intégré (Wave & Orange Money), notifications push Firebase FCM, gestion multi-rôles (joueur / propriétaire / admin), animations GSAP sur la landing web.",
     features: [
@@ -401,7 +401,7 @@ export const manualProjects = [
     duration: '3 mois',
     stack: ['Laravel 12', 'PHP', 'Tailwind CSS', 'Alpine.js', 'PayDunya', 'MySQL'],
     summary:
-      "Dématérialisation et gestion automatisée des certificats de résidence pour les mairies — de la demande citoyenne jusqu'à la signature électronique.",
+      "Dématérialisation et gestion automatisée des certificats de résidence pour les mairies, de la demande citoyenne jusqu'à la signature électronique.",
     impact:
       "Authentification multi-rôles (citoyen / mairie), paiement intégré via PayDunya, génération PDF dynamique et traçabilité complète des demandes.",
     features: [
@@ -431,7 +431,7 @@ export const manualProjects = [
     summary:
       "Plateforme anti-gaspillage : les commerces publient leurs paniers d'invendus à prix réduit, les clients les réservent et les paient depuis l'application mobile avant de les retirer.",
     impact:
-      "Back-end Laravel sur PostgreSQL, application client Flutter et espace commerçant web — le tout couvert par plus de 200 tests automatisés côté serveur.",
+      "Back-end Laravel sur PostgreSQL, application client Flutter et espace commerçant web. Le tout couvert par plus de 200 tests automatisés côté serveur.",
     features: [
       "Application client Flutter : connexion par code OTP envoyé par email, sans mot de passe",
       "Recherche et réservation de paniers avec gestion du stock",
@@ -457,7 +457,7 @@ export const manualProjects = [
     duration: '1 mois',
     stack: ['React', 'Vite', 'Node.js', 'Express', 'API REST'],
     summary:
-      "Application web pour aider les étudiants à organiser leur parcours académique — matières, devoirs, projets et alertes de retard en un seul dashboard.",
+      "Application web pour aider les étudiants à organiser leur parcours académique : matières, devoirs, projets et alertes de retard en un seul dashboard.",
     impact:
       "Authentification sécurisée, gestion multi-matières, suivi des échéances en temps réel, interface responsive optimisée mobile.",
     features: [
@@ -465,7 +465,7 @@ export const manualProjects = [
       "Gestion des matières avec couleurs personnalisées",
       "Alertes de délai : notifications visuelles J-3, J-1, expirés",
       "Statistiques de progression : heures de travail, tâches complétées par semaine",
-      "Interface 100% responsive — conçue mobile-first",
+      "Interface 100% responsive, conçue mobile-first",
     ],
     challenge:
       "Synchroniser l'état du planning entre plusieurs onglets ouverts sans back-end WebSocket, résolu avec BroadcastChannel API.",
@@ -484,7 +484,7 @@ export const manualProjects = [
     duration: '3 semaines',
     stack: ['PHP', 'JavaScript', 'Bootstrap', 'MySQL'],
     summary:
-      "Application interactive pour créer, passer et corriger des quiz à choix multiples — conçue pour les établissements scolaires.",
+      "Application interactive pour créer, passer et corriger des quiz à choix multiples, conçue pour les établissements scolaires.",
     impact:
       "Gestion étudiants/professeurs, correction automatisée, tableau de bord de progression et statistiques par matière.",
     features: [
@@ -516,7 +516,7 @@ export const manualProjects = [
       "Import de la liste étudiants depuis Excel (Pandas)",
       "Algorithme de matching : parrain/filleul de section et sexe différents si possible",
       "Export du résultat vers Excel avec les paires formées",
-      "Interface graphique native CustomTkinter — aucune installation requise",
+      "Interface graphique native CustomTkinter, aucune installation requise",
       "Validation des données : détection des doublons et champs manquants",
     ],
     challenge:
@@ -536,7 +536,7 @@ export const manualProjects = [
     duration: '3 semaines',
     stack: ['PHP', 'JavaScript', 'MySQL', 'Bootstrap'],
     summary:
-      "Plateforme web de communication interne et d'espace collaboratif pour l'ESTM de Dakar — annonces, documents partagés et messagerie entre étudiants et administration.",
+      "Plateforme web de communication interne et d'espace collaboratif pour l'ESTM de Dakar : annonces, documents partagés et messagerie entre étudiants et administration.",
     impact:
       "Authentification multi-rôles (étudiant / admin), gestion des annonces et documents, messagerie interne entre membres.",
     features: [
@@ -544,7 +544,7 @@ export const manualProjects = [
       "Espace documents : partage de cours, TD et ressources pédagogiques",
       "Messagerie interne : communication directe entre étudiants et administration",
       "Authentification multi-rôles : étudiant, enseignant, administrateur",
-      "Interface responsive Bootstrap — accessible sur mobile",
+      "Interface responsive Bootstrap, accessible sur mobile",
     ],
     challenge:
       "Implémenter un système de notifications en temps réel sans WebSocket sur un hébergement mutualisé, résolu avec du long-polling PHP côté serveur.",
@@ -563,18 +563,18 @@ export const manualProjects = [
     duration: '2 semaines',
     stack: ['PHP', 'JavaScript', 'MySQL', 'WebSockets'],
     summary:
-      "Jeu de Bachelor multijoueur en temps réel — les participants s'affrontent dans un quiz de culture générale depuis leur téléphone, façon émission TV.",
+      "Jeu de Bachelor multijoueur en temps réel : les participants s'affrontent dans un quiz de culture générale depuis leur téléphone, façon émission TV.",
     impact:
       "Synchronisation temps réel des questions et scores entre tous les joueurs connectés, interface mobile-first pensée pour jouer en soirée entre amis.",
     features: [
       "Salle d'attente : le host démarre la partie quand tous les joueurs sont prêts",
-      "Questions synchronisées en temps réel — tous voient la même question au même moment",
+      "Questions synchronisées en temps réel : tous voient la même question au même moment",
       "Chronomètre par question avec décompte visible",
       "Classement live mis à jour après chaque réponse",
       "Interface mobile-first : jouable depuis n'importe quel téléphone sans installation",
     ],
     challenge:
-      "Synchroniser les états de jeu entre plusieurs clients simultanés en PHP pur sans Node.js — résolu avec un mécanisme de polling court et une table d'état en base de données.",
+      "Synchroniser les états de jeu entre plusieurs clients simultanés en PHP pur sans Node.js. Résolu avec un mécanisme de polling court et une table d'état en base de données.",
     link: 'https://github.com/idy-00/bachelor',
     live: null,
     screenshot: null,
