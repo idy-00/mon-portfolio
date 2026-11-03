@@ -6,8 +6,8 @@ import Clock from './Clock'
 export default function Nav({ here, menuOpen, onToggle, buttonRef }) {
   return (
     <header className="nav">
-      <Link className="nav__id" to="/" aria-label="Accueil, Idrissa Kane">
-        <span className="nav__mark" aria-hidden="true">IK</span>
+      <Link className="nav__id" to="/" aria-label={`IK ${here.sn} ${here.name}, Idrissa Kane, accueil`}>
+        <span className="nav__mark" aria-hidden="true">IK</span>{' '}
         <Scramble className="nav__here" text={`${here.sn} ${here.name}`} aria-hidden="true" />
       </Link>
       <div className="nav__right">

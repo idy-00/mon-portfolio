@@ -9,6 +9,7 @@
 }
 .scard__txt { display: grid; align-content: start; gap: clamp(20px, 4vh, 48px); }
 .scard__n { font-family: var(--f-display); font-weight: 800; font-size: clamp(4rem, 9vw, 8rem); line-height: .8; letter-spacing: -.06em; color: var(--ink-3); }
+.scard__n::before { content: attr(data-n); }
 .scard h2 { margin: 0 0 16px; font-family: var(--f-display); font-weight: 800; font-size: clamp(1.6rem, 3.4vw, 3.4rem); line-height: .95; letter-spacing: -.045em; text-wrap: balance; hyphens: none; }
 .scard p { color: var(--bone-2); max-width: 40ch; }
 .scard__vis { position: relative; border-radius: 18px; overflow: hidden; background: var(--ink-3); min-height: 260px; }

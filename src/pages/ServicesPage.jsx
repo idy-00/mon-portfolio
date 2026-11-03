@@ -131,7 +131,7 @@ export default function ServicesPage() {
         {SERVICES.map((s, i) => (
           <article className="scard" key={s.title}>
             <div className="scard__txt">
-              <span className="scard__n" aria-hidden="true">{String(i + 1).padStart(2, '0')}</span>
+              <span className="scard__n" aria-hidden="true" data-n={String(i + 1).padStart(2, '0')} />
               <div>
                 <h2>{s.title}</h2>
                 <p>{s.text}</p>

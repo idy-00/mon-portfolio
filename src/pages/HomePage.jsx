@@ -155,7 +155,8 @@ export default function HomePage() {
           </div>
           <SplitChars className="h-xl hero__name" lines={['Idrissa', 'Kane']} delay={0.35} />
           <div className="hero__foot">
-            <p className="hero__tag" aria-label="serial|dev">
+            <p className="hero__tag">
+              <span className="sr-only">serial|dev</span>
               <span className="hero__typed" aria-hidden="true">serial<span className="bar">|</span>dev</span>
               <span className="caret" aria-hidden="true" />
             </p>
@@ -167,7 +168,8 @@ export default function HomePage() {
       {/* 2 ── Intro */}
       <section className="intro wrap" aria-label="Présentation">
         <span className="mono" data-scramble>SN·00 · Depuis mes débuts</span>
-        <p className="sweep" aria-label={SWEEP}>
+        <p className="sweep">
+          <span className="sr-only">{SWEEP}</span>
           {CHUNKS.map((c, i) => <span className="chunk" key={i} aria-hidden="true"><span>{c}</span></span>)}
         </p>
         <div className="intro__cols">
