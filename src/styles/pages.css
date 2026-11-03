@@ -76,3 +76,10 @@
 .mrow span { font-family: var(--f-display); font-weight: 800; font-size: clamp(3rem, 9vw, 8.6rem); line-height: 1; letter-spacing: -.05em; padding-right: .45em; white-space: nowrap; }
 .mrow--b span { color: transparent; -webkit-text-stroke: 1.2px var(--smoke); }
 @media (prefers-reduced-motion: reduce) { .mrow { flex-wrap: wrap; width: auto; } .mrow span:nth-child(n + 6) { display: none; } }
+
+/* reduced-motion : pas de pin, la rangée horizontale devient une grille lisible */
+@media (prefers-reduced-motion: reduce) and (min-width: 900px) {
+  .track { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); width: auto; }
+  .card, .card--end { flex-basis: auto; }
+  .card .shot img { transform: none; }
+}
